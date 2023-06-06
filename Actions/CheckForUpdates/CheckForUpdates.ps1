@@ -317,7 +317,12 @@ try {
                                     $newTestJob += @('')
                                     $ifpart = ""
                                     ($_)..1 | ForEach-Object {
-                                        $needs += @("Build$_")
+                                        if ($depth -eq $_) {
+                                            $needs += @("Build")
+                                        }
+                                        else {
+                                            $needs += @("Build$_")
+                                        }
                                         $ifpart += " && (needs.Build$_.result == 'success' || needs.Build$_.result == 'skipped')"
                                     }
                                     $if = "if: (!failure()) && (!cancelled())$ifpart && fromJson(needs.Initialization.outputs.buildOrderJson)[$index].projectsCount > 0"
