@@ -196,8 +196,26 @@ jobs:
       publishArtifacts: ${{ github.ref_name == 'main' || startswith(github.ref_name, 'release/') || needs.Initialization.outputs.deliveryTargetCount > 0 || needs.Initialization.outputs.environmentCount > 0 }}
       signArtifacts: true
 
-  Deploy:
+  Test:
     needs: [ Initialization, Build ]
+    if: (!failure()) && (!cancelled()) && fromJson(needs.Initialization.outputs.buildOrderJson)[0].projectsCount > 0
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.Initialization.outputs.buildOrderJson)[0].buildDimensions }}
+      fail-fast: false
+    name: Test ${{ matrix.project }} - ${{ matrix.buildMode }}
+    uses: ./.github/workflows/_TestALGoProject.yaml
+    secrets: inherit
+    with:
+      shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
+      runsOn: ${{ needs.Initialization.outputs.githubRunner }}
+      parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
+      project: ${{ matrix.project }}
+      buildMode: ${{ matrix.buildMode }}
+      projectDependenciesJson: ${{ needs.Initialization.outputs.projectDependenciesJson }}
+
+  Deploy:
+    needs: [ Initialization, Build, Test ]
     if: always() && needs.Build.result == 'Success' && needs.Initialization.outputs.environmentCount > 0
     strategy: ${{ fromJson(needs.Initialization.outputs.environments) }}
     runs-on: ${{ fromJson(matrix.os) }}
