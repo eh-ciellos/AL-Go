@@ -339,7 +339,7 @@ jobs:
           artifacts: '.artifacts'
 
   Deliver:
-    needs: [ Initialization, Build ]
+    needs: [ Initialization, Build, Test ]
     if: always() && needs.Build.result == 'Success' && needs.Initialization.outputs.deliveryTargetCount > 0
     strategy:
       matrix:
@@ -394,7 +394,7 @@ jobs:
   PostProcess:
     if: (!cancelled())
     runs-on: [ windows-latest ]
-    needs: [ Initialization, Build, Deploy, Deliver ]
+    needs: [ Initialization, Build, Test, Deploy, Deliver ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
