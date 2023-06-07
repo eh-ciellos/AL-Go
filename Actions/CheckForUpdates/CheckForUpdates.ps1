@@ -368,7 +368,7 @@ try {
 
                                 $newDeployJobContent = @("Deploy:")
 
-                                $DeployyJob.content | ForEach-Object { $newDeployJobContent += @("  $_") }
+                                $deployJob.content | ForEach-Object { $newDeployJobContent += @("  $_") }
 
                                 $yaml.Replace('jobs:/Deploy:', $newDeployJobContent)
                             }
