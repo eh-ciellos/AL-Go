@@ -359,7 +359,7 @@ try {
                                         $testPart = "Test$_"
 
                                         $needs += @($testPart)
-                                        $ifParts.add("needs.$testPart.result == 'Success'")
+                                        $ifParts += "needs.$testPart.result == 'Success'")
                                     }
                                     $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
 
@@ -384,7 +384,7 @@ try {
                                         $testPart = "Test$_"
 
                                         $needs += @($testPart)
-                                        $ifParts.add("needs.$testPart.result == 'Success'")
+                                        $ifParts += "needs.$testPart.result == 'Success'"
                                     }
                                     $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.deliveryTargetCount > 0"
 
