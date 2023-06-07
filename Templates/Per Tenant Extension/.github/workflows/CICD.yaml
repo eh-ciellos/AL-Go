@@ -216,7 +216,7 @@ jobs:
 
   Deploy:
     needs: [ Initialization, Build, Test ]
-    if: always() && needs.Build.result == 'Success' && needs.Initialization.outputs.environmentCount > 0
+    if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && needs.Initialization.outputs.environmentCount > 0
     strategy: ${{ fromJson(needs.Initialization.outputs.environments) }}
     runs-on: ${{ fromJson(matrix.os) }}
     name: Deploy to ${{ matrix.environment }}
@@ -340,7 +340,7 @@ jobs:
 
   Deliver:
     needs: [ Initialization, Build, Test ]
-    if: always() && needs.Build.result == 'Success' && needs.Initialization.outputs.deliveryTargetCount > 0
+    if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' needs.Initialization.outputs.deliveryTargetCount > 0
     strategy:
       matrix:
         deliveryTarget: ${{ fromJson(needs.Initialization.outputs.deliveryTargets) }}
