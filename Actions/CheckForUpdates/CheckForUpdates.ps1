@@ -352,7 +352,7 @@ try {
                             {
                                 $needs = @('Initialization', 'Build', 'Test')
                                 
-                                1..$depth - 1 | ForEach-Object {
+                                1..($depth - 1) | ForEach-Object {
                                     # Add test jobs as dependencies to the Deploy job
                                     $ifParts = @()
                                     $testPart = "Test$_"
@@ -366,7 +366,7 @@ try {
                                 $deployJob.Replace('if:', $if)
                                 $deployJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
 
-                                $newDeployJobContent =  @("Deploy:")
+                                $newDeployJobContent = @("Deploy:")
 
                                 $DeployyJob.content | ForEach-Object { $newDeployJobContent += @("  $_") }
 
@@ -378,7 +378,7 @@ try {
                             {
                                 $needs = @('Initialization', 'Build', 'Test')
                                 
-                                1..$depth - 1 | ForEach-Object {
+                                1..($depth - 1) | ForEach-Object {
                                     # Add test jobs as dependencies to the Deliver job
                                     $ifParts = @()
                                     $testPart = "Test$_"
@@ -392,7 +392,7 @@ try {
                                 $deliverJob.Replace('if:', $if)
                                 $deliverJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
 
-                                $newDeliverJobContent =  @("Deliver:")
+                                $newDeliverJobContent = @("Deliver:")
 
                                 $deliveryJob.content | ForEach-Object { $newDeliverJobContent += @("  $_") }
 
