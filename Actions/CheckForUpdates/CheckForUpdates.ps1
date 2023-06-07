@@ -318,12 +318,13 @@ try {
                                     $ifpart = ""
                                     ($_)..1 | ForEach-Object {
                                         if ($depth -eq $_) {
-                                            $needs += @("Build")
+                                            $buildPart = "Build"
                                         }
                                         else {
-                                            $needs += @("Build$_")
+                                            $buildPart = "Build$_"
                                         }
-                                        $ifpart += " && (needs.Build$_.result == 'success' || needs.Build$_.result == 'skipped')"
+                                        $needs += @($buildPart)
+                                        $ifpart += " && (needs.$buildPart.result == 'success' || needs.$buildPart.result == 'skipped')"
                                     }
                                     $if = "if: (!failure()) && (!cancelled())$ifpart && fromJson(needs.Initialization.outputs.buildOrderJson)[$index].projectsCount > 0"
 
