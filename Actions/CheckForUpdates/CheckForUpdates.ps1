@@ -350,51 +350,53 @@ try {
                             $deployJob = $yaml.Get('jobs:/Deploy:/')
                             if($deployJob)
                             {
-                                1..$depth | ForEach-Object {
-                                    $needs = @('Initialization', 'Build', 'Test')
-
-                                    # Add test jobs as dependencies to the deploy job
+                                $needs = @('Initialization', 'Build', 'Test')
+                                
+                                1..$depth - 1 | ForEach-Object {
+                                    # Add test jobs as dependencies to the Deploy job
                                     $ifParts = @()
-                                    ($_ - 1)..1 | ForEach-Object {
-                                        $testPart = "Test$_"
+                                    $testPart = "Test$_"
 
-                                        $needs += @($testPart)
-                                        $ifParts += "needs.$testPart.result == 'Success'"
-                                    }
-                                    $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
-
-                                    # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
-                                    $deployJob.Replace('if:', $if)
-                                    $deployJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
+                                    $needs += @($testPart)
+                                    $ifParts += "needs.$testPart.result == 'Success'"
                                 }
+                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
 
-                                # Replace the entire Test: job with the new test job list
-                                $yaml.Replace('jobs:/Deploy:', $deployJob)
+                                # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
+                                $deployJob.Replace('if:', $if)
+                                $deployJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
+
+                                $newDeployJobContent =  @("Deploy:")
+
+                                $DeployyJob.content | ForEach-Object { $newDeployJobContent += @("  $_") }
+
+                                $yaml.Replace('jobs:/Deploy:', $newDeployJobContent)
                             }
 
                             $deliverJob = $yaml.Get('jobs:/Deliver:/')
                             if($deliverJob)
                             {
-                                1..$depth | ForEach-Object {
-                                    $needs = @('Initialization', 'Build', 'Test')
-
+                                $needs = @('Initialization', 'Build', 'Test')
+                                
+                                1..$depth - 1 | ForEach-Object {
                                     # Add test jobs as dependencies to the Deliver job
                                     $ifParts = @()
-                                    ($_ - 1)..1 | ForEach-Object {
-                                        $testPart = "Test$_"
+                                    $testPart = "Test$_"
 
-                                        $needs += @($testPart)
-                                        $ifParts += "needs.$testPart.result == 'Success'"
-                                    }
-                                    $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.deliveryTargetCount > 0"
-
-                                    # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
-                                    $deliverJob.Replace('if:', $if)
-                                    $deliverJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
+                                    $needs += @($testPart)
+                                    $ifParts += "needs.$testPart.result == 'Success'"
                                 }
+                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.deliveryTargetCount > 0"
 
-                                # Replace the entire Test: job with the new test job list
-                                $yaml.Replace('jobs:/Deliver:', $deliverJob)
+                                # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
+                                $deliverJob.Replace('if:', $if)
+                                $deliverJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
+
+                                $newDeliverJobContent =  @("Deliver:")
+
+                                $deliveryJob.content | ForEach-Object { $newDeliverJobContent += @("  $_") }
+
+                                $yaml.Replace('jobs:/Deliver:', $newDeliverJobContent)
                             }
                         }
                     }
