@@ -360,7 +360,7 @@ try {
                                     $needs += @($testPart)
                                     $ifParts += "needs.$testPart.result == 'Success'"
                                 }
-                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
+                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && $($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
 
                                 # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
                                 $deployJob.Replace('if:', $if)
@@ -386,7 +386,7 @@ try {
                                     $needs += @($testPart)
                                     $ifParts += "needs.$testPart.result == 'Success'"
                                 }
-                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && ($($ifParts -join ' && ') && needs.Initialization.outputs.deliveryTargetCount > 0"
+                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && $($ifParts -join ' && ') && needs.Initialization.outputs.deliveryTargetCount > 0"
 
                                 # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
                                 $deliverJob.Replace('if:', $if)
