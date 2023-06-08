@@ -347,14 +347,20 @@ try {
                                 $yaml.Replace('jobs:/Test:', $newTestJob)
                             }
 
-                            $deployJob = $yaml.Get('jobs:/Deploy:/')
-                            if($deployJob)
+                            function AddDependencyToTestJobs([Yaml] $yaml, [string] $jobName, [int] $depth)
                             {
+                                $job = $yaml.Get("jobs:/$jobName`:/")
+
+                                if(!$job)
+                                {
+                                    return
+                                }
+
                                 $needs = @('Initialization', 'Build', 'Test')
+                                $ifParts = @()
                                 
+                                # Add all test jobs as dependencies to the job
                                 1..($depth - 1) | ForEach-Object {
-                                    # Add test jobs as dependencies to the Deploy job
-                                    $ifParts = @()
                                     $testPart = "Test$_"
 
                                     $needs += @($testPart)
@@ -362,42 +368,19 @@ try {
                                 }
                                 $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && $($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
 
-                                # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
-                                $deployJob.Replace('if:', $if)
-                                $deployJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
+                                $job.Replace('if:', $if)
+                                $job.Replace('needs:', "needs: [ $($needs -join ', ') ]")
 
-                                $newDeployJobContent = @("Deploy:")
+                                $newJobContent = @("$jobName`:")
 
-                                $deployJob.content | ForEach-Object { $newDeployJobContent += @("  $_") }
+                                $job.content | ForEach-Object { $newJobContent += @("  $_") }
 
-                                $yaml.Replace('jobs:/Deploy:', $newDeployJobContent)
+                                $yaml.Replace("jobs:/$jobName`:", $newJobContent)
                             }
 
-                            $deliverJob = $yaml.Get('jobs:/Deliver:/')
-                            if($deliverJob)
-                            {
-                                $needs = @('Initialization', 'Build', 'Test')
-                                
-                                1..($depth - 1) | ForEach-Object {
-                                    # Add test jobs as dependencies to the Deliver job
-                                    $ifParts = @()
-                                    $testPart = "Test$_"
-
-                                    $needs += @($testPart)
-                                    $ifParts += "needs.$testPart.result == 'Success'"
-                                }
-                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && $($ifParts -join ' && ') && needs.Initialization.outputs.deliveryTargetCount > 0"
-
-                                # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
-                                $deliverJob.Replace('if:', $if)
-                                $deliverJob.Replace('needs:', "needs: [ $($needs -join ', ') ]")
-
-                                $newDeliverJobContent = @("Deliver:")
-
-                                $deliverJob.content | ForEach-Object { $newDeliverJobContent += @("  $_") }
-
-                                $yaml.Replace('jobs:/Deliver:', $newDeliverJobContent)
-                            }
+                            # Deploy and Deliver jobs need to have dependencies on all test jobs
+                            AddDependencyToTestJobs -yaml $yaml -jobName 'Deploy' -depth $depth
+                            AddDependencyToTestJobs -yaml $yaml -jobName 'Deliver' -depth $depth
                         }
                     }
                     # combine all the yaml file lines into a single string with LF line endings
