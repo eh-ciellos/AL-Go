@@ -347,7 +347,7 @@ try {
                                 $yaml.Replace('jobs:/Test:', $newTestJob)
                             }
 
-                            function AddDependencyToTestJobs([Yaml] $yaml, [string] $jobName, [int] $depth)
+                            function AddDependencyToTestJobs([Yaml] $yaml, [string] $jobName, [int] $depth, [string[]] $additionalConditions)
                             {
                                 $job = $yaml.Get("jobs:/$jobName`:/")
 
@@ -366,7 +366,7 @@ try {
                                     $needs += @($testPart)
                                     $ifParts += "needs.$testPart.result == 'Success'"
                                 }
-                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && $($ifParts -join ' && ') && needs.Initialization.outputs.environmentCount > 0"
+                                $if = "if: always() && needs.Build.result == 'Success' && needs.Test.result == 'Success' && $($ifParts -join ' && ') && $($additionalConditions -join ' && ')"
 
                                 $job.Replace('if:', $if)
                                 $job.Replace('needs:', "needs: [ $($needs -join ', ') ]")
@@ -379,8 +379,8 @@ try {
                             }
 
                             # Deploy and Deliver jobs need to have dependencies on all test jobs
-                            AddDependencyToTestJobs -yaml $yaml -jobName 'Deploy' -depth $depth
-                            AddDependencyToTestJobs -yaml $yaml -jobName 'Deliver' -depth $depth
+                            AddDependencyToTestJobs -yaml $yaml -jobName 'Deploy' -depth $depth -additionalConditions "needs.Initialization.outputs.environmentCount > 0"
+                            AddDependencyToTestJobs -yaml $yaml -jobName 'Deliver' -depth $depth -additionalConditions "needs.Initialization.outputs.deliveryTargetCount > 0"
                         }
                     }
                     # combine all the yaml file lines into a single string with LF line endings
