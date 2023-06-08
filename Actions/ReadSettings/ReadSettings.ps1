@@ -45,6 +45,16 @@ try {
         $settings.versioningStrategy = 15
     }
 
+    Write-Host "Current job: $ENV:GITHUB_JOB"
+    if ($ENV:GITHUB_JOB -eq 'BuildALGoProject') {
+        # For build jobs, do not publish apps
+        Write-Host "Setting doNotPublishApps, doNotRunTests and doNotRunBcptTests, to true"
+
+        $settings.doNotPublishApps = $true
+        $settings.doNotRunTests = $true
+        $settings.doNotRunBcptTests = $true
+    }
+
     if ($settings.appBuild -eq [int32]::MaxValue) {
         $settings.versioningStrategy = 15
     }
