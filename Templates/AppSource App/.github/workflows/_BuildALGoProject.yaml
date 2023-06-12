@@ -37,11 +37,6 @@ on:
         required: false
         default: ''
         type: string
-      publishThisBuildArtifacts:
-        description: Flag indicating whether this build artifacts should be published
-        required: false
-        default: false
-        type: boolean
       publishArtifacts:
         description: Flag indicating whether the artifacts should be published
         required: false
@@ -78,7 +73,6 @@ jobs:
             lfs: true
       
         - name: Download thisbuild artifacts
-          if: inputs.publishThisBuildArtifacts
           uses: actions/download-artifact@v3
           with:
             path: '.dependencies'
@@ -155,7 +149,6 @@ jobs:
             suffix: ${{ inputs.artifactsNameSuffix }}
 
         - name: Upload thisbuild artifacts - apps
-          if: inputs.publishThisBuildArtifacts
           uses: actions/upload-artifact@v3
           with:
             name: ${{ steps.calculateArtifactsNames.outputs.ThisBuildAppsArtifactsName }}
@@ -164,7 +157,6 @@ jobs:
             retention-days: 1
 
         - name: Upload thisbuild artifacts - test apps
-          if: inputs.publishThisBuildArtifacts
           uses: actions/upload-artifact@v3
           with:
             name: ${{ steps.calculateArtifactsNames.outputs.ThisBuildTestAppsArtifactsName }}

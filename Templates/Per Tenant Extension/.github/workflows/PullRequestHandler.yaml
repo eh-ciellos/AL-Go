@@ -52,7 +52,6 @@ jobs:
       projects: ${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}
       projectDependenciesJson: ${{ steps.determineProjectsToBuild.outputs.ProjectDependenciesJson }}
       buildOrderJson: ${{ steps.determineProjectsToBuild.outputs.BuildOrderJson }}
-      workflowDepth: ${{ steps.DetermineWorkflowDepth.outputs.WorkflowDepth }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -74,11 +73,7 @@ jobs:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           getEnvironments: '*'
-      
-      - name: Determine Workflow Depth
-        id: DetermineWorkflowDepth
-        run: |
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "WorkflowDepth=$($env:workflowDepth)"
+
           
       - name: Determine Projects To Build
         id: determineProjectsToBuild
@@ -106,7 +101,6 @@ jobs:
       buildMode: ${{ matrix.buildMode }}
       projectDependenciesJson: ${{ needs.Initialization.outputs.projectDependenciesJson }}
       secrets: 'licenseFileUrl,insiderSasToken,keyVaultCertificateUrl,keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext'
-      publishThisBuildArtifacts: ${{ needs.Initialization.outputs.workflowDepth > 1 }}
 
   PostProcess:
     runs-on: [ windows-latest ]
