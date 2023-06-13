@@ -65,9 +65,10 @@ jobs:
             project: ${{ inputs.project }}
 
         - name: Get Environment
-          run: |
-            Write-Host "MOCK: Preparing environment for running tests for project ${{ inputs.project }}"
-            Write-Host "MOCK: Spinning up container for project ${{ inputs.project }}"
+          uses: mazhelez/AL-Go-Actions/GetBCEnvironment@split-build
+          with:
+            shell: ${{ inputs.shell }}
+            project: ${{ inputs.project }}
 
         - name: Publish apps to environment
           run: |
