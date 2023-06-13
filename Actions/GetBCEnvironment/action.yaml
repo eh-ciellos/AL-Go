@@ -8,7 +8,7 @@ inputs:
   provider:
     description: "How to create the environment (supported values are: docker)"
     required: true
-    default: docker
+    default: BCDockerContainer
   project:
     description: AL-Go project folder
     required: true

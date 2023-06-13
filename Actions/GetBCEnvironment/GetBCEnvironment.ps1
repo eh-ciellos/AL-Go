@@ -58,7 +58,7 @@ try {
         
     $credentials = @{}
     switch ($Provider) {
-        'BCDocker' { $credentials = Get-BCDockerCredentials }
+        'BCDockerContainer' { $credentials = Get-BCDockerCredentials }
         Default { throw "Provider $Provider not supported" }
     }
 
