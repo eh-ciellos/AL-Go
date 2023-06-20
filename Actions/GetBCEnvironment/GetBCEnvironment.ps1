@@ -63,6 +63,7 @@ try {
         Write-Host "Creaing docker container"
 
         $settings = ReadSettings -baseFolder $BaseFolder -project $Project
+        $bcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE
         $artifactUrl = Get-BCArtifactUrlBasedOnSettings $settings.artifact $settings.additionalCountries
 
         $Parameters = @{
@@ -77,7 +78,6 @@ try {
             "FilesOnly" = $false
         }
         
-        $bcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE
         Invoke-Command -ScriptBlock $NewBcContainerScript -ArgumentList $Parameters 
 
         return $credentials
