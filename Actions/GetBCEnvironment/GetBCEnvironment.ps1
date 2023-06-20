@@ -10,7 +10,7 @@ param (
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
 $telemetryScope = $null
-$bcContainerHelperPath = $null
+$bcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE
 
 # IMPORTANT: No code that can fail should be outside the try/catch
 
@@ -63,7 +63,6 @@ try {
         Write-Host "Creaing docker container"
 
         $settings = ReadSettings -baseFolder $BaseFolder -project $Project
-        $bcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE
         $artifactUrl = Get-BCArtifactUrlBasedOnSettings $settings.artifact $settings.additionalCountries
 
         $Parameters = @{
