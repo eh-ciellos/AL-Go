@@ -1,7 +1,7 @@
 name: 'Pull Request Build'
 
 on:
-  pull_request:
+  pull_request_target:
     paths-ignore:
       - '**.md'
     branches: [ 'main' ]
@@ -13,6 +13,11 @@ concurrency:
 defaults:
   run:
     shell: powershell
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
 
 env:
   workflowDepth: 1
@@ -61,7 +66,15 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0104"
-          
+
+      - name: Read settings
+        id: ReadSettings
+        uses: microsoft/AL-Go-Actions/ReadSettings@main
+        with:
+          shell: powershell
+          parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
+          getEnvironments: '*'
+      
       - name: Determine Workflow Depth
         id: DetermineWorkflowDepth
         run: |
