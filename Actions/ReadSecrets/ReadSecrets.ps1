@@ -3,6 +3,7 @@ Param(
     [Parameter(HelpMessage = "Settings from template repository in compressed Json format", Mandatory = $false)]
     [string] $settingsJson = '{"keyVaultName": ""}',
     [Parameter(HelpMessage = "Comma separated list of Secrets to get", Mandatory = $true)]
+    [AllowEmptyString()]
     [string] $secrets = "",
     [Parameter(HelpMessage = "Specifies the parent telemetry scope for the telemetry signal", Mandatory = $false)]
     [string] $parentTelemetryScopeJson = '7b7d'
