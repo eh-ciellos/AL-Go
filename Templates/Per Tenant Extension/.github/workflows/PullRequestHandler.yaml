@@ -1,7 +1,7 @@
 name: 'Pull Request Build'
 
 on:
-  pull_request_target:
+  pull_request:
     paths-ignore:
       - '**.md'
     branches: [ 'main' ]
@@ -13,11 +13,6 @@ concurrency:
 defaults:
   run:
     shell: powershell
-
-permissions:
-  contents: read
-  actions: read
-  pull-requests: read
 
 env:
   workflowDepth: 1
@@ -96,7 +91,6 @@ jobs:
       fail-fast: false
     name: Build ${{ matrix.project }} - ${{ matrix.buildMode }}
     uses: ./.github/workflows/_BuildALGoProject.yaml
-    secrets: inherit
     with:
       shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
       runsOn: ${{ needs.Initialization.outputs.githubRunner }}
