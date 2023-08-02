@@ -11,8 +11,7 @@ inputs:
     default: '{"keyVaultName": ""}'
   secrets:
     description: Comma separated list of Secrets to get
-    required: false
-    default: ''
+    required: true
   parentTelemetryScopeJson:
     description: Specifies the parent telemetry scope for the telemetry signal
     required: false
