@@ -38,7 +38,6 @@ try {
             throw "A personal access token with permissions to modify Workflows is needed. You must add a secret called GhTokenWorkflow containing a personal access token. You can Generate a new token from https://github.com/settings/tokens. Make sure that the workflow scope is checked."
         }
         else {
-            $token = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($token))
         }
     }
 
