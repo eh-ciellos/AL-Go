@@ -38,6 +38,7 @@ try {
             throw "A personal access token with permissions to modify Workflows is needed. You must add a secret called GhTokenWorkflow containing a personal access token. You can Generate a new token from https://github.com/settings/tokens. Make sure that the workflow scope is checked."
         }
         else {
+            $token = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($token))
         }
     }
 
@@ -523,7 +524,6 @@ try {
                     throw "Failed to update AL-Go System Files. Make sure that the personal access token, defined in the secret called GhTokenWorkflow, is not expired and it has permission to update workflows. (Error was $($_.Exception.Message))"
                 }
                 else {
-                    Write-Host "Error: $($_.Exception)"
                     throw "Failed to create a pull-request to AL-Go System Files. Make sure that the personal access token, defined in the secret called GhTokenWorkflow, is not expired and it has permission to update workflows. (Error was $($_.Exception.Message))"
                 }
             }
