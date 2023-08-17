@@ -11,8 +11,8 @@ try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-TestRepoHelper.ps1" -Resolve)
 
     $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
-    $branch = $ap[$ap.Count-2]
-    $owner = $ap[$ap.Count-4]
+    $branch = $ap[$ap.Count - 2]
+    $owner = $ap[$ap.Count - 4]
 
     if ($owner -ne "microsoft") {
         $verstr = "d"
@@ -55,7 +55,7 @@ try {
         AddTelemetryProperty -telemetryScope $telemetryScope -key "runAttempt" -value $ENV:GITHUB_RUN_ATTEMPT
         AddTelemetryProperty -telemetryScope $telemetryScope -key "runNumber" -value $ENV:GITHUB_RUN_NUMBER
         AddTelemetryProperty -telemetryScope $telemetryScope -key "runId" -value $ENV:GITHUB_RUN_ID
-        
+
         $scopeJson = strToHexStr -str ($telemetryScope | ConvertTo-Json -Compress)
         $correlationId = ($telemetryScope.CorrelationId).ToString()
     }

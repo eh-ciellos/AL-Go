@@ -21,7 +21,8 @@ function GetExtendedErrorMessage {
             if ($webResponse.StatusDescription) {
                 $message += "`n$($webResponse.StatusDescription)"
             }
-        } catch {}
+        }
+        catch {}
         $reqstream = $webResponse.GetResponseStream()
         $sr = new-object System.IO.StreamReader $reqstream
         $result = $sr.ReadToEnd()
@@ -40,7 +41,7 @@ function GetExtendedErrorMessage {
         }
         catch {}
     }
-    catch{}
+    catch {}
     $message
 }
 
@@ -119,28 +120,28 @@ function Get-Dependencies {
     }
 
     $downloadedList = @()
-    'Apps','TestApps' | ForEach-Object {
+    'Apps', 'TestApps' | ForEach-Object {
         $mask = $_
         $probingPathsJson | ForEach-Object {
             $dependency = $_
             $projects = $dependency.projects
             $buildMode = $dependency.buildMode
-            
+
             # change the mask to include the build mode
-            if($buildMode -ne "Default") {
+            if ($buildMode -ne "Default") {
                 $mask = "$buildMode$mask"
             }
 
             Write-Host "Locating $mask artifacts for projects: $projects"
-            
+
             if ($dependency.release_status -eq "thisBuild") {
                 $missingProjects = @()
                 $projects.Split(',') | ForEach-Object {
                     $project = $_
-                    $project = $project.Replace('\','_').Replace('/','_') # sanitize project name
-                    
+                    $project = $project.Replace('\', '_').Replace('/', '_') # sanitize project name
+
                     $downloadName = Join-Path $saveToPath "thisbuild-$project-$($mask)"
-                    
+
                     if (Test-Path $downloadName -PathType Container) {
                         $folder = Get-Item $downloadName
                         Get-ChildItem -Path $folder | ForEach-Object {
@@ -264,7 +265,7 @@ function CmdDo {
         if ("$err" -ne "") {
             $message += "$err"
         }
-        
+
         $message = $message.Trim()
 
         if ($p.ExitCode -eq 0) {
@@ -272,11 +273,11 @@ function CmdDo {
                 Write-Host $message
             }
             if ($returnValue) {
-                $message.Replace("`r","").Split("`n")
+                $message.Replace("`r", "").Split("`n")
             }
         }
         else {
-            $message += "`n`nExitCode: "+$p.ExitCode + "`nCommandline: $command $arguments"
+            $message += "`n`nExitCode: " + $p.ExitCode + "`nCommandline: $command $arguments"
             throw $message
         }
     }
@@ -362,7 +363,7 @@ function SemVerObjToSemVerStr {
     )
     try {
         $str = "$($semVerObj.Prefix)$($semVerObj.Major).$($semVerObj.Minor).$($semVerObj.Patch)"
-        for ($i=0; $i -lt 5; $i++) {
+        for ($i = 0; $i -lt 5; $i++) {
             $seg = $semVerObj."Addt$i"
             if ($seg -eq 'zzz') { break }
             if ($i -eq 0) { $str += "-$($seg)" } else { $str += ".$($seg)" }
@@ -441,14 +442,14 @@ function SemVerStrToSemVerObj {
         }
         $idx = $verStr.IndexOf('-')
         if ($idx -gt 0) {
-            $segments = $verStr.SubString($idx+1).Split('.')
+            $segments = $verStr.SubString($idx + 1).Split('.')
             if ($segments.Count -gt 5) {
                 throw "max. 5 segments"
             }
             # Add all 5 segments to the object
             # If the segment is a number, it is converted to an integer
             # If the segment is a string, it cannot be -ge 'zzz' (would be sorted wrongly)
-            0..($segments.Count-1) | ForEach-Object {
+            0..($segments.Count - 1) | ForEach-Object {
                 $result = 0
                 if ([int]::TryParse($segments[$_], [ref] $result)) {
                     $obj."Addt$_" = [int]$result
@@ -485,13 +486,13 @@ function GetReleases {
     if ($releases.Count -gt 1) {
         # Sort by SemVer tag
         try {
-            $sortedReleases = $releases.tag_name | 
-                ForEach-Object { SemVerStrToSemVerObj -semVerStr $_ } | 
-                Sort-Object -Property Major,Minor,Patch,Addt0,Addt1,Addt2,Addt3,Addt4 -Descending | 
-                ForEach-Object { SemVerObjToSemVerStr -semVerObj $_ } | ForEach-Object {
-                    $tag_name = $_
-                    $releases | Where-Object { $_.tag_name -eq $tag_name }
-                }
+            $sortedReleases = $releases.tag_name |
+            ForEach-Object { SemVerStrToSemVerObj -semVerStr $_ } |
+            Sort-Object -Property Major, Minor, Patch, Addt0, Addt1, Addt2, Addt3, Addt4 -Descending |
+            ForEach-Object { SemVerObjToSemVerStr -semVerObj $_ } | ForEach-Object {
+                $tag_name = $_
+                $releases | Where-Object { $_.tag_name -eq $tag_name }
+            }
             $sortedReleases
         }
         catch {
@@ -511,7 +512,7 @@ function GetLatestRelease {
         [string] $repository = $ENV:GITHUB_REPOSITORY,
         [string] $ref = $ENV:GITHUB_REFNAME
     )
-    
+
     Write-Host "Getting the latest release from $api_url/repos/$repository/releases/latest - branch $ref"
     # Get all releases from GitHub, sorted by SemVer tag
     # If any release tag is not a valid SemVer tag, use default GitHub sorting and issue a warning
@@ -540,7 +541,7 @@ function GetHeader {
         [string] $apiVersion = "2022-11-28"
     )
     $headers = @{
-        "Accept" = $accept
+        "Accept"               = $accept
         "X-GitHub-Api-Version" = $apiVersion
     }
     if (![string]::IsNullOrEmpty($token)) {
@@ -559,7 +560,7 @@ function GetReleaseNotes {
         [string] $previous_tag_name,
         [string] $target_commitish
     )
-    
+
     Write-Host "Generating release note $api_url/repos/$repository/releases/generate-notes"
 
     $postParams = @{
@@ -573,7 +574,7 @@ function GetReleaseNotes {
         $postParams["target_commitish"] = $target_commitish
     }
 
-    InvokeWebRequest -Headers (GetHeader -token $token) -Method POST -Body ($postParams | ConvertTo-Json) -Uri "$api_url/repos/$repository/releases/generate-notes" 
+    InvokeWebRequest -Headers (GetHeader -token $token) -Method POST -Body ($postParams | ConvertTo-Json) -Uri "$api_url/repos/$repository/releases/generate-notes"
 }
 
 function DownloadRelease {
@@ -594,14 +595,14 @@ function DownloadRelease {
     }
     $headers = GetHeader -token $token -accept "application/octet-stream"
     $projects.Split(',') | ForEach-Object {
-        $project = $_.Replace('\','_').Replace('/','_')
+        $project = $_.Replace('\', '_').Replace('/', '_')
         Write-Host "project '$project'"
-        
+
         $release.assets | Where-Object { $_.name -like "$project-*-$mask-*.zip" -or $_.name -like "$project-$mask-*.zip" } | ForEach-Object {
             $uri = "$api_url/repos/$repository/releases/assets/$($_.id)"
             Write-Host $uri
             $filename = Join-Path $path $_.name
-            InvokeWebRequest -Headers $headers -Uri $uri -OutFile $filename 
+            InvokeWebRequest -Headers $headers -Uri $uri -OutFile $filename
             return $filename
         }
     }
@@ -616,13 +617,13 @@ function CheckRateLimit {
     $rate = (InvokeWebRequest -Headers $headers -Uri "https://api.github.com/rate_limit").Content | ConvertFrom-Json
     $rate | ConvertTo-Json -Depth 99 | Out-Host
     $rate = $rate.rate
-    $percent = [int]($rate.remaining*100/$rate.limit)
+    $percent = [int]($rate.remaining * 100 / $rate.limit)
     Write-Host "$($rate.remaining) API calls remaining out of $($rate.limit) ($percent%)"
     if ($percent -lt 10) {
         $resetTimeStamp = ([datetime] '1970-01-01Z').AddSeconds($rate.reset)
         $waitTime = $resetTimeStamp.Subtract([datetime]::Now)
         Write-Host "Less than 10% API calls left, waiting for $($waitTime.TotalSeconds) seconds for limits to reset."
-        Start-Sleep -seconds ($waitTime.TotalSeconds+1)
+        Start-Sleep -seconds ($waitTime.TotalSeconds + 1)
     }
 }
 
@@ -715,7 +716,7 @@ function GetArtifacts {
         $result = @()
         $allArtifactsFound = $true
         $projects.Split(',') | ForEach-Object {
-            $project = $_.Replace('\','_').Replace('/','_')
+            $project = $_.Replace('\', '_').Replace('/', '_')
             Write-Host "project '$project'"
             $projectArtifact = $allArtifacts | Where-Object { $_.name -like "$project-$branch-$mask-$version" } | Select-Object -First 1
             if ($projectArtifact) {
@@ -726,7 +727,7 @@ function GetArtifacts {
                 $result = @()
             }
         }
-    } while (!$allArtifactsFound -and $artifacts.total_count -gt $page*$per_page)
+    } while (!$allArtifactsFound -and $artifacts.total_count -gt $page * $per_page)
     $result
 }
 

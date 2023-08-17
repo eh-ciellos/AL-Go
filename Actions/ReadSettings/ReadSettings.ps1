@@ -47,18 +47,22 @@ try {
 
     if ($settings.versioningstrategy -ne -1) {
         switch ($settings.versioningStrategy -band 15) {
-            0 { # Use RUN_NUMBER and RUN_ATTEMPT
+            0 {
+                # Use RUN_NUMBER and RUN_ATTEMPT
                 $settings.appBuild = $settings.runNumberOffset + [Int32]($ENV:GITHUB_RUN_NUMBER)
                 $settings.appRevision = [Int32]($ENV:GITHUB_RUN_ATTEMPT) - 1
             }
-            1 { # Use RUN_ID and RUN_ATTEMPT
+            1 {
+                # Use RUN_ID and RUN_ATTEMPT
                 OutputError -message "Versioning strategy 1 is no longer supported"
             }
-            2 { # USE DATETIME
+            2 {
+                # USE DATETIME
                 $settings.appBuild = [Int32]([DateTime]::UtcNow.ToString('yyyyMMdd'))
                 $settings.appRevision = [Int32]([DateTime]::UtcNow.ToString('HHmmss'))
             }
-            15 { # Use maxValue
+            15 {
+                # Use maxValue
                 $settings.appBuild = [Int32]::MaxValue
                 $settings.appRevision = 0
             }
@@ -107,13 +111,13 @@ try {
         try {
             Write-Host "Trying to get environments from GitHub API"
             $ghEnvironments = @((InvokeWebRequest -Headers $headers -Uri $url -ignoreErrors | ConvertFrom-Json).environments | Where-Object { $_.name -like $getEnvironments })
-        } 
+        }
         catch {
             $ghEnvironments = @()
             Write-Host "Failed to get environments from GitHub API - Environments are not supported in this repository"
         }
         Write-Host "Requesting environments from settings"
-        $environments = @(@($ghEnvironments | ForEach-Object { $_.name })+@($settings.environments) | Select-Object -unique | Where-Object { $_ -ne "github-pages" })
+        $environments = @(@($ghEnvironments | ForEach-Object { $_.name }) + @($settings.environments) | Select-Object -unique | Where-Object { $_ -ne "github-pages" })
         $unknownEnvironment = 0
         if (!($environments)) {
             $unknownEnvironment = 1
@@ -127,52 +131,52 @@ try {
             if ($environments) {
                 Write-Host "Environments found: $($environments -join ', ')"
             }
-            $environments = @($environments | Where-Object { 
-                if ($includeProduction) {
-                    $_ -like $getEnvironments -or $_ -like "$getEnvironments (PROD)" -or $_ -like "$getEnvironments (Production)" -or $_ -like "$getEnvironments (FAT)" -or $_ -like "$getEnvironments (Final Acceptance Test)"
-                }
-                else {
-                    $_ -like $getEnvironments -and $_ -notlike '* (PROD)' -and $_ -notlike '* (Production)' -and $_ -notlike '* (FAT)' -and $_ -notlike '* (Final Acceptance Test)'
-                }
-            } | Where-Object {
-                $envName = $_
-                Write-Host "Environment: $envName"
-                $ghEnvironment = $ghEnvironments | Where-Object { $_.name -eq $envName }
-                if ($ghEnvironment) {
-                    $branchPolicy = ($ghEnvironment.protection_rules | Where-Object { $_.type -eq "branch_policy" })
-                    if ($branchPolicy) {
-                        Write-Host "GitHub Environment $envName has branch policies, getting branches from GitHub API"
-                        $branchesUrl = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/environments/$([Uri]::EscapeDataString($envName))/deployment-branch-policies"
-                        Write-Host "Getting branches for $envName from GitHub API"
-                        $branches = @((InvokeWebRequest -Headers $headers -Uri $branchesUrl -ignoreErrors | ConvertFrom-Json).branch_policies | ForEach-Object { $_.name })
+            $environments = @($environments | Where-Object {
+                    if ($includeProduction) {
+                        $_ -like $getEnvironments -or $_ -like "$getEnvironments (PROD)" -or $_ -like "$getEnvironments (Production)" -or $_ -like "$getEnvironments (FAT)" -or $_ -like "$getEnvironments (Final Acceptance Test)"
                     }
                     else {
-                        Write-Host "GitHub Environment $envName does not have branch policies, using main as default"
+                        $_ -like $getEnvironments -and $_ -notlike '* (PROD)' -and $_ -notlike '* (Production)' -and $_ -notlike '* (FAT)' -and $_ -notlike '* (Final Acceptance Test)'
+                    }
+                } | Where-Object {
+                    $envName = $_
+                    Write-Host "Environment: $envName"
+                    $ghEnvironment = $ghEnvironments | Where-Object { $_.name -eq $envName }
+                    if ($ghEnvironment) {
+                        $branchPolicy = ($ghEnvironment.protection_rules | Where-Object { $_.type -eq "branch_policy" })
+                        if ($branchPolicy) {
+                            Write-Host "GitHub Environment $envName has branch policies, getting branches from GitHub API"
+                            $branchesUrl = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/environments/$([Uri]::EscapeDataString($envName))/deployment-branch-policies"
+                            Write-Host "Getting branches for $envName from GitHub API"
+                            $branches = @((InvokeWebRequest -Headers $headers -Uri $branchesUrl -ignoreErrors | ConvertFrom-Json).branch_policies | ForEach-Object { $_.name })
+                        }
+                        else {
+                            Write-Host "GitHub Environment $envName does not have branch policies, using main as default"
+                            $branches = @( 'main' )
+                        }
+                    }
+                    else {
+                        Write-Host "Environment $envName was defined in settings, using main as default"
                         $branches = @( 'main' )
                     }
-                }
-                else {
-                    Write-Host "Environment $envName was defined in settings, using main as default"
-                    $branches = @( 'main' )
-                }
-                $environmentName = $_.Split(' ')[0]
-                $deployToName = "DeployTo$environmentName"
-                if (($settings.Contains($deployToName)) -and ($settings."$deployToName".Contains('Branches'))) {
-                    $branches = @($settings."$deployToName".Branches)
-                }
-                Write-Host "- branches: $($branches -join ', ')"
-                $includeEnvironment = $false
-                $branches | ForEach-Object {
-                    if ($ENV:GITHUB_REF_NAME -like $_) {
-                        $includeEnvironment = $true
+                    $environmentName = $_.Split(' ')[0]
+                    $deployToName = "DeployTo$environmentName"
+                    if (($settings.Contains($deployToName)) -and ($settings."$deployToName".Contains('Branches'))) {
+                        $branches = @($settings."$deployToName".Branches)
                     }
-                }
-                Write-Host "- include: $includeEnvironment"
-                $includeEnvironment
-            })
+                    Write-Host "- branches: $($branches -join ', ')"
+                    $includeEnvironment = $false
+                    $branches | ForEach-Object {
+                        if ($ENV:GITHUB_REF_NAME -like $_) {
+                            $includeEnvironment = $true
+                        }
+                    }
+                    Write-Host "- include: $includeEnvironment"
+                    $includeEnvironment
+                })
         }
         $json = @{"matrix" = @{ "include" = @() }; "fail-fast" = $false }
-        $environments | Select-Object -Unique | ForEach-Object { 
+        $environments | Select-Object -Unique | ForEach-Object {
             $environmentName = $_.Split(' ')[0]
             $deployToName = "DeployTo$environmentName"
             $runson = $settings."runs-on".Split(',').Trim()

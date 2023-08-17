@@ -13,8 +13,8 @@
     }
     $workflowName = 'Update AL-Go System Files'
     $parameters = @{
-        "templateUrl" = $templateUrl.Split('|')[0]
-        "directCommit" = @("Y","N")[!$directCommit]
+        "templateUrl"  = $templateUrl.Split('|')[0]
+        "directCommit" = @("Y", "N")[!$directCommit]
     }
     RunWorkflow -name $workflowName -parameters $parameters -wait:$wait -branch $branch -repository $repository
 }

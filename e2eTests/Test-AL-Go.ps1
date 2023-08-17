@@ -15,15 +15,15 @@
 )
 
 Write-Host -ForegroundColor Yellow @'
-#  ______           _ ___                _    _           _                                    _       
-# |  ____|         | |__ \              | |  | |         | |                                  (_)      
-# | |__   _ __   __| |  ) |___ _ __   __| |  | |_ ___ ___| |_    ___  ___ ___ _ __   __ _ _ __ _  ___  
-# |  __| | '_ \ / _` | / // _ \ '_ \ / _` |  | __/ _ \ __| __|  / __|/ __/ _ \ '_ \ / _` | '__| |/ _ \ 
+#  ______           _ ___                _    _           _                                    _
+# |  ____|         | |__ \              | |  | |         | |                                  (_)
+# | |__   _ __   __| |  ) |___ _ __   __| |  | |_ ___ ___| |_    ___  ___ ___ _ __   __ _ _ __ _  ___
+# |  __| | '_ \ / _` | / // _ \ '_ \ / _` |  | __/ _ \ __| __|  / __|/ __/ _ \ '_ \ / _` | '__| |/ _ \
 # | |____| | | | (_| |/ /_  __/ | | | (_| |  | |_  __\__ \ |_   \__ \ (__  __/ | | | (_| | |  | | (_) |
-# |______|_| |_|\__,_|____\___|_| |_|\__,_|   \__\___|___/\__|  |___/\___\___|_| |_|\__,_|_|  |_|\___/ 
+# |______|_| |_|\__,_|____\___|_| |_|\__,_|   \__\___|___/\__|  |___/\___\___|_| |_|\__,_|_|  |_|\___/
 #
 # This scenario runs for both PTE template and AppSource App template and as single project and multi project repositories
-#                                                                                                      
+#
 # - Login to GitHub
 # - Create a new repository based on the selected template
 # - If (AppSource App) Create a licensefileurl secret
@@ -59,7 +59,7 @@ Write-Host -ForegroundColor Yellow @'
 # - Cleanup repositories
 #
 '@
-  
+
 $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
 $prevLocation = Get-Location
 
@@ -137,7 +137,7 @@ $runs++
 $run = Run-CICD -wait -branch $branch
 $runs++
 
-if ($useCompilerFolder) { 
+if ($useCompilerFolder) {
     # If using compiler folder duing tests, doNotPublishApps is also set to true (for now), which means that apps are not published and tests are not run
     # Later we will fix this to include test runs as well, but for now, expected number of tests is 0
     $expectedNumberOfTests = 0
@@ -146,7 +146,7 @@ else {
     $expectedNumberOfTests = 1
 }
 Test-NumberOfRuns -expectedNumberOfRuns $runs -repository $repository
-Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps"=2;"TestApps"=1} -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts' -repoVersion '1.0' -appVersion ''
+Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps" = 2; "TestApps" = 1 } -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts' -repoVersion '1.0' -appVersion ''
 
 # Create Release
 Run-CreateRelease -appVersion "1.0.$($runs-2).0" -name 'v1.0' -tag '1.0.0' -wait -branch $branch | Out-Null
@@ -163,15 +163,15 @@ if ($appSourceApp) {
     }
     Copy-Item -path "$($project1Folder)Default App Name\logo\helloworld256x240.png" -Destination "$($project2Folder)My App\helloworld256x240.png"
     Add-PropertiesToJsonFile -commit -path "$($project2Folder)My App\app.json" -properties @{
-        "brief" = "Hello World for AppSource"
-        "description" = "Hello World sample app for AppSource"
-        "logo" = "helloworld256x240.png"
-        "url" = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
-        "EULA" = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
-        "privacyStatement" = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
-        "help" = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
+        "brief"                   = "Hello World for AppSource"
+        "description"             = "Hello World sample app for AppSource"
+        "logo"                    = "helloworld256x240.png"
+        "url"                     = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
+        "EULA"                    = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
+        "privacyStatement"        = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
+        "help"                    = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
         "contextSensitiveHelpUrl" = "https://dev.azure.com/businesscentralapps/HelloWorld.AppSource"
-        "features" = @( "TranslationFile" )
+        "features"                = @( "TranslationFile" )
     }
     $runs++
 }
@@ -198,10 +198,10 @@ $runs++
 $run = MergePRandPull -branch $branch -wait
 $runs++
 if ($multiProject) {
-    Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps"=1;"TestApps"=1} -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts2' -repoVersion '2.0' -appVersion ''
+    Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps" = 1; "TestApps" = 1 } -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts2' -repoVersion '2.0' -appVersion ''
 }
 else {
-    Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps"=3;"TestApps"=2} -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts2' -repoVersion '2.0' -appVersion ''
+    Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps" = 3; "TestApps" = 2 } -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts2' -repoVersion '2.0' -appVersion ''
 }
 Test-NumberOfRuns -expectedNumberOfRuns $runs -repository $repository
 
@@ -224,7 +224,7 @@ if (Test-Path "$($project1Folder).AL-Go\*.ps1") { throw "Local PowerShell script
 if (Test-Path ".github\workflows\AddExistingAppOrTestApp.yaml") { throw "AddExistingAppOrTestApp.yaml should have been removed" }
 $run = Run-CICD -wait -branch $branch
 $runs++
-Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps"=3;"TestApps"=2} -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts3' -repoVersion '3.0' -appVersion '3.0'
+Test-ArtifactsFromRun -runid $run.id -expectedArtifacts @{"Apps" = 3; "TestApps" = 2 } -expectedNumberOfTests $expectedNumberOfTests -folder 'artifacts3' -repoVersion '3.0' -appVersion '3.0'
 
 # Update AL-Go System Files
 $repoSettings = Get-Content ".github\AL-Go-Settings.json" -Encoding UTF8 | ConvertFrom-Json

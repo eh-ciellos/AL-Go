@@ -7,40 +7,40 @@ Describe "AL-Go-Helper tests" {
         # This function is used to merge settings files into the settings object
         # dest is the default settings object
         $dest = [ordered]@{
-            'int0' = 0
-            'int1' = 1
-            'int2' = 2
-            'str1' = 'str1'
-            'str2' = 'str2'
-            'arr1' = @('a', 'b', 'c')
-            'arr2' = @('a', 'b', 'c')
-            'obj1' = [ordered]@{
+            'int0'    = 0
+            'int1'    = 1
+            'int2'    = 2
+            'str1'    = 'str1'
+            'str2'    = 'str2'
+            'arr1'    = @('a', 'b', 'c')
+            'arr2'    = @('a', 'b', 'c')
+            'obj1'    = [ordered]@{
                 'a' = 'a'
                 'b' = 'b'
                 'c' = 'c'
             }
-            'obj2' = [ordered]@{
+            'obj2'    = [ordered]@{
                 'a' = 'a'
                 'b' = 'b'
                 'c' = 'c'
             }
-            'objarr1' = @([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c'}, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'})
-            'objarr2' = @([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c'}, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'})
+            'objarr1' = @([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c' }, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' })
+            'objarr2' = @([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c' }, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' })
         }
 
         $dest.Count | Should -Be 11
 
         # source is the settings read from a file
         $src = @{
-            'int1' = [Int64]::MaxValue
-            'int2' = 3
-            'int3' = 4
-            'objarr2' = @([ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i'}, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'})
-            'objarr3' = @([ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i'}, [ordered]@{'j' = 'j'; 'k' = 'k'; 'l' = 'l'})
+            'int1'    = [Int64]::MaxValue
+            'int2'    = 3
+            'int3'    = 4
+            'objarr2' = @([ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i' }, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' })
+            'objarr3' = @([ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i' }, [ordered]@{'j' = 'j'; 'k' = 'k'; 'l' = 'l' })
         } | ConvertTo-Json | ConvertFrom-Json
         $src.int2 = [Int32]3
         $src.int3 = [Int32]4
-        
+
         # Merge the settings
         MergeCustomObjectIntoOrderedDictionary -dst $dest -src $src
         $dest.Count | Should -Be 13
@@ -48,8 +48,8 @@ Describe "AL-Go-Helper tests" {
         $dest['int1'] | Should -Be ([Int64]::MaxValue)
         $dest['int2'] | Should -Be 3
         $dest['int3'] | Should -Be 4
-        $dest['objarr2'] | ConvertTo-Json | Should -Be (@([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c'}, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'}, [ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i'}, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'}) | ConvertTo-Json)
-        $dest['objarr3'] | ConvertTo-Json | Should -Be (@([ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i'}, [ordered]@{'j' = 'j'; 'k' = 'k'; 'l' = 'l'}) | ConvertTo-Json)
+        $dest['objarr2'] | ConvertTo-Json | Should -Be (@([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c' }, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' }, [ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i' }, [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' }) | ConvertTo-Json)
+        $dest['objarr3'] | ConvertTo-Json | Should -Be (@([ordered]@{'g' = 'g'; 'h' = 'h'; 'i' = 'i' }, [ordered]@{'j' = 'j'; 'k' = 'k'; 'l' = 'l' }) | ConvertTo-Json)
 
         # source is the settings read from a file
         # Check that multiple settings files are merged correctly one after the other
@@ -58,10 +58,10 @@ Describe "AL-Go-Helper tests" {
             'str3' = 'str4'
             'arr2' = @('c', 'd', 'e')
             'arr3' = @('c', 'd', 'e')
-            'obj2' = [ordered]@{'c' = 'c'; 'd' = 'd'; 'e' = 'e'}
-            'obj3' = [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'}
+            'obj2' = [ordered]@{'c' = 'c'; 'd' = 'd'; 'e' = 'e' }
+            'obj3' = [ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' }
         } | ConvertTo-Json | ConvertFrom-Json
-        
+
         # Check that applying the same settings twice doesn't change the result
         1..2 | ForEach-Object {
             MergeCustomObjectIntoOrderedDictionary -dst $dest -src $src
@@ -74,8 +74,8 @@ Describe "AL-Go-Helper tests" {
             $dest['str3'] | Should -Be 'str4'
             $dest['arr2'] | Should -Be @('a', 'b', 'c', 'd', 'e')
             $dest['arr3'] | Should -Be @('c', 'd', 'e')
-            $dest['obj2'] | ConvertTo-Json | Should -Be ([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c'; 'd' = 'd'; 'e' = 'e'} | ConvertTo-Json)
-            $dest['obj3'] | ConvertTo-Json | Should -Be ([ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f'} | ConvertTo-Json)
+            $dest['obj2'] | ConvertTo-Json | Should -Be ([ordered]@{'a' = 'a'; 'b' = 'b'; 'c' = 'c'; 'd' = 'd'; 'e' = 'e' } | ConvertTo-Json)
+            $dest['obj3'] | ConvertTo-Json | Should -Be ([ordered]@{'d' = 'd'; 'e' = 'e'; 'f' = 'f' } | ConvertTo-Json)
         }
     }
 
@@ -95,27 +95,27 @@ Describe "AL-Go-Helper tests" {
 
         New-Item -Path (Join-Path $tempName "projectx/$ALGoFolderName") -ItemType Directory | Out-Null
         New-Item -Path (Join-Path $tempName "projecty/$ALGoFolderName") -ItemType Directory | Out-Null
-        
+
         # Create settings files
-        # Property:    Repo:               Project (single):   Project (multi):    Workflow:           Workflow:           User:               
+        # Property:    Repo:               Project (single):   Project (multi):    Workflow:           Workflow:           User:
         #                                                                                              if(branch=dev):
-        # Property1    repo1               single1             multi1                                  branch1             user1               
-        # Property2    repo2                                                       workflow2                                                   
-        # Property3    repo3                                                                                                                   
-        # Arr1         @("repo1","repo2")                                                                                                      
-        # Property4                        single4                                                     branch4                                 
-        # property5                                            multi5                                                                          
-        # property6                                                                                                        user6               
-        @{ "property1" = "repo1"; "property2" = "repo2"; "property3" = "repo3"; "arr1" = @("repo1","repo2") } | ConvertTo-Json -Depth 99 |
-            Set-Content -Path (Join-Path $githubFolder "AL-Go-Settings.json") -encoding utf8 -Force
+        # Property1    repo1               single1             multi1                                  branch1             user1
+        # Property2    repo2                                                       workflow2
+        # Property3    repo3
+        # Arr1         @("repo1","repo2")
+        # Property4                        single4                                                     branch4
+        # property5                                            multi5
+        # property6                                                                                                        user6
+        @{ "property1" = "repo1"; "property2" = "repo2"; "property3" = "repo3"; "arr1" = @("repo1", "repo2") } | ConvertTo-Json -Depth 99 |
+        Set-Content -Path (Join-Path $githubFolder "AL-Go-Settings.json") -encoding utf8 -Force
         @{ "property1" = "single1"; "property4" = "single4" } | ConvertTo-Json -Depth 99 |
-            Set-Content -Path (Join-Path $ALGoFolder "settings.json") -encoding utf8 -Force
+        Set-Content -Path (Join-Path $ALGoFolder "settings.json") -encoding utf8 -Force
         @{ "property1" = "multi1"; "property5" = "multi5" } | ConvertTo-Json -Depth 99 |
-            Set-Content -Path (Join-Path $projectALGoFolder "settings.json") -encoding utf8 -Force
+        Set-Content -Path (Join-Path $projectALGoFolder "settings.json") -encoding utf8 -Force
         @{ "property2" = "workflow2"; "conditionalSettings" = @( @{ "branches" = @( 'dev' ); "settings" = @{ "property1" = "branch1"; "property4" = "branch4" } } ) } | ConvertTo-Json -Depth 99 |
-            Set-Content -Path (Join-Path $githubFolder "Workflow.settings.json") -encoding utf8 -Force
+        Set-Content -Path (Join-Path $githubFolder "Workflow.settings.json") -encoding utf8 -Force
         @{ "property1" = "user1"; "property6" = "user6" } | ConvertTo-Json -Depth 99 |
-            Set-Content -Path (Join-Path $projectALGoFolder "user.settings.json") -encoding utf8 -Force
+        Set-Content -Path (Join-Path $projectALGoFolder "user.settings.json") -encoding utf8 -Force
 
         # No settings variables
         $ENV:ALGoOrgSettings = ''
@@ -184,7 +184,7 @@ Describe "AL-Go-Helper tests" {
         $withOrgSettings.property5 | Should -Be 'multi5'
         $withOrgSettings.property6 | Should -Be 'user6'
         $withOrgSettings.property7 | Should -Be 'orgsetting7'
-        $withOrgSettings.arr1 | Should -Be @("org3","repo1","repo2")
+        $withOrgSettings.arr1 | Should -Be @("org3", "repo1", "repo2")
 
         # Repo settings variable
         # property3 = reposetting3
@@ -211,7 +211,7 @@ Describe "AL-Go-Helper tests" {
                 }
                 @{
                     "repositories" = @( 'repox', 'repoy' )
-                    "settings" = @{ "property3" = "repoxy"; "property4" = "repoxy" }
+                    "settings"     = @{ "property3" = "repoxy"; "property4" = "repoxy" }
                 }
                 @{
                     "projects" = @( 'projectx', 'projecty' )
@@ -219,15 +219,15 @@ Describe "AL-Go-Helper tests" {
                 }
                 @{
                     "workflows" = @( 'workflowx', 'workflowy' )
-                    "settings" = @{ "property3" = "workflowxy"; "property4" = "workflowxy" }
+                    "settings"  = @{ "property3" = "workflowxy"; "property4" = "workflowxy" }
                 }
                 @{
-                    "users" = @( 'userx', 'usery' )
+                    "users"    = @( 'userx', 'usery' )
                     "settings" = @{ "property3" = "userxy"; "property4" = "userxy" }
                 }
                 @{
                     "branches" = @( 'branchx', 'branchy' )
-                    "projects" = @( 'projectx','projecty' )
+                    "projects" = @( 'projectx', 'projecty' )
                     "settings" = @{ "property3" = "bpxy"; "property4" = "bpxy" }
                 }
             )
@@ -262,7 +262,7 @@ Describe "AL-Go-Helper tests" {
         # Invalid Org(var) setting should throw
         $ENV:ALGoOrgSettings = 'this is not json'
         { ReadSettings -baseFolder $tempName -project 'Project' } | Should -Throw
-        
+
         $ENV:ALGoOrgSettings = ''
         $ENV:ALGoRepoSettings = ''
 

@@ -45,7 +45,7 @@ function ConvertTo-HashTable {
     )
     $ht = @{}
     if ($object) {
-        $object.PSObject.Properties | ForEach-Object { 
+        $object.PSObject.Properties | ForEach-Object {
             if ($recurse -and ($_.Value -is [PSCustomObject])) {
                 $ht[$_.Name] = ConvertTo-HashTable $_.Value -recurse
             }
@@ -109,7 +109,7 @@ function Add-PropertiesToJsonFile {
                 $run = (InvokeWebRequest -Method Get -Headers $headers -Uri $url -retry | ConvertFrom-Json).workflow_runs | Where-Object { $_.event -eq 'push' } | Where-Object { $previousrunids -notcontains $_.id }
                 if ($run) {
                     break
-                } 
+                }
                 Write-Host "Run not started, waiting..."
             }
             WaitWorkflow -repository $repository -runid $run.id
@@ -144,24 +144,24 @@ function RunWorkflow {
 
     $headers = GetHeader -token $token
     $rate = ((InvokeWebRequest -Headers $headers -Uri "https://api.github.com/rate_limit" -retry).Content | ConvertFrom-Json).rate
-    $percent = [int]($rate.remaining*100/$rate.limit)
+    $percent = [int]($rate.remaining * 100 / $rate.limit)
     Write-Host "$($rate.remaining) API calls remaining out of $($rate.limit) ($percent%)"
     if ($percent -lt 10) {
         $resetTimeStamp = ([datetime] '1970-01-01Z').AddSeconds($rate.reset)
         $waitTime = $resetTimeStamp.Subtract([datetime]::Now)
         Write-Host "Less than 10% API calls left, waiting for $($waitTime.TotalSeconds) seconds for limits to reset."
-        Start-Sleep -seconds ($waitTime.TotalSeconds+1)
+        Start-Sleep -seconds ($waitTime.TotalSeconds + 1)
     }
 
     Write-Host "Get Workflows"
     $url = "https://api.github.com/repos/$repository/actions/workflows"
     $workflows = (InvokeWebRequest -Method Get -Headers $headers -Uri $url -retry | ConvertFrom-Json).workflows
-    $workflows | ForEach-Object { Write-Host "- $($_.Name)"}
+    $workflows | ForEach-Object { Write-Host "- $($_.Name)" }
     if (!$workflows) {
         Write-Host "No workflows found, waiting 60 seconds and retrying"
         Start-Sleep -seconds 60
         $workflows = (InvokeWebRequest -Method Get -Headers $headers -Uri $url -retry | ConvertFrom-Json).workflows
-        $workflows | ForEach-Object { Write-Host "- $($_.Name)"}
+        $workflows | ForEach-Object { Write-Host "- $($_.Name)" }
         if (!$workflows) {
             throw "No workflows found"
         }
@@ -180,12 +180,12 @@ function RunWorkflow {
     else {
         Write-Host "No previous run found"
     }
-    
+
     Write-Host "Run workflow"
     $url = "https://api.github.com/repos/$repository/actions/workflows/$($workflow.id)/dispatches"
     Write-Host $url
     $body = @{
-        "ref" = "refs/heads/$branch"
+        "ref"    = "refs/heads/$branch"
         "inputs" = $parameters
     }
     InvokeWebRequest -Method Post -Headers $headers -Uri $url -retry -Body ($body | ConvertTo-Json) | Out-Null
@@ -294,14 +294,14 @@ function CreateNewAppInFolder {
         "  end;"
         "}")
     $appJson = [ordered]@{
-        "id" = $id
-        "name" = $name
-        "version" = $version
-        "publisher" = $publisher
-        "dependencies" = $dependencies
-        "application" = $application
-        "runtime" = $runtime
-        "idRanges" = @( @{ "from" = $objID; "to" = $objID } )
+        "id"                     = $id
+        "name"                   = $name
+        "version"                = $version
+        "publisher"              = $publisher
+        "dependencies"           = $dependencies
+        "application"            = $application
+        "runtime"                = $runtime
+        "idRanges"               = @( @{ "from" = $objID; "to" = $objID } )
         "resourceExposurePolicy" = @{ "allowDebugging" = $true; "allowDownloadingSource" = $true; "includeSourceInSymbolFile" = $true }
     }
     $folder = Join-Path $folder $name
@@ -353,7 +353,7 @@ function CreateAlGoRepository {
     Set-Location $path
     if ($waitMinutes) {
         Write-Host "Waiting $waitMinutes minutes"
-        Start-Sleep -seconds ($waitMinutes*60)
+        Start-Sleep -seconds ($waitMinutes * 60)
     }
     if ($private) {
         Write-Host -ForegroundColor Yellow "`nCreating private repository $repository (based on $template)"
@@ -370,7 +370,7 @@ function CreateAlGoRepository {
     Write-Host "Downloading template from $templateUrl"
     $zipFileName = Join-Path $tempPath "$([GUID]::NewGuid().ToString()).zip"
     [System.Net.WebClient]::new().DownloadFile($templateUrl, $zipFileName)
-    
+
     $tempRepoPath = Join-Path $tempPath ([GUID]::NewGuid().ToString())
     Expand-Archive -Path $zipFileName -DestinationPath $tempRepoPath
     Copy-Item (Join-Path (Get-Item "$tempRepoPath/*/$templateFolder").FullName '*') -Destination . -Recurse -Force
@@ -382,17 +382,17 @@ function CreateAlGoRepository {
         Get-ChildItem -Path . -File -Recurse | ForEach-Object {
             $file = $_.FullName
             $lines = Get-Content -Encoding UTF8 -path $file
-        
+
             # Replace URL's to actions repository first
             $regex = "^(.*)https:\/\/raw\.githubusercontent\.com\/microsoft\/AL-Go-Actions\/main(.*)$"
             $replace = "`${1}https://raw.githubusercontent.com/$($templateOwner)/AL-Go/$($templateBranch)/Actions`${2}"
             $lines = $lines | ForEach-Object { $_ -replace $regex, $replace }
-        
+
             # Replace AL-Go-Actions references
             $regex = "^(.*)microsoft\/AL-Go-Actions(.*)main(.*)$"
             $replace = "`${1}$($templateOwner)/AL-Go/Actions`${2}$($templateBranch)`${3}"
             $lines = $lines | ForEach-Object { $_ -replace $regex, $replace }
-        
+
             $content = "$($lines -join "`n")`n"
 
             # Update Template references in test apps
@@ -523,7 +523,7 @@ function MergePRandPull {
         $run = (InvokeWebRequest -Method Get -Headers $headers -Uri $url -retry | ConvertFrom-Json).workflow_runs | Where-Object { $_.event -eq 'push' } | Where-Object { $previousrunids -notcontains $_.id }
         if ($run) {
             break
-        } 
+        }
         Write-Host "Run not started, waiting..."
     }
     if ($wait) {
@@ -561,7 +561,7 @@ function RemoveRepository {
     }
 
     if ($path) {
-        if (-not $path.StartsWith("$([System.IO.Path]::GetTempPath())",[StringComparison]::InvariantCultureIgnoreCase)) {
+        if (-not $path.StartsWith("$([System.IO.Path]::GetTempPath())", [StringComparison]::InvariantCultureIgnoreCase)) {
             throw "$path is not temppath"
         }
         else {

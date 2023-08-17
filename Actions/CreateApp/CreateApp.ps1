@@ -43,7 +43,7 @@ try {
 
     import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
     $telemetryScope = CreateScope -eventId 'DO0072' -parentTelemetryScopeJson $parentTelemetryScopeJson
-    
+
     import-module (Join-Path -path $PSScriptRoot -ChildPath "AppHelper.psm1" -Resolve)
     Write-Host "Template type : $type"
 
@@ -93,7 +93,7 @@ try {
     try {
         $settingsJsonFile = Join-Path $projectFolder $ALGoSettingsFile
         $SettingsJson = Get-Content $settingsJsonFile -Encoding UTF8 | ConvertFrom-Json
-        if (@($settingsJson.appFolders)+@($settingsJson.testFolders)) {
+        if (@($settingsJson.appFolders) + @($settingsJson.testFolders)) {
             if ($type -eq "Performance Test App") {
                 if ($SettingsJson.bcptTestFolders -notcontains $foldername) {
                     $SettingsJson.bcptTestFolders += @($folderName)
@@ -128,7 +128,7 @@ try {
         New-SampleTestApp -destinationPath (Join-Path $projectFolder $folderName) -name $name -publisher $publisher -version $appVersion -sampleCode $sampleCode -idrange $ids
     }
     else {
-        New-SampleApp -destinationPath (Join-Path $projectFolder $folderName) -name $name -publisher $publisher -version $appVersion -sampleCode $sampleCode -idrange $ids 
+        New-SampleApp -destinationPath (Join-Path $projectFolder $folderName) -name $name -publisher $publisher -version $appVersion -sampleCode $sampleCode -idrange $ids
     }
 
     Update-WorkSpaces -projectFolder $projectFolder -appName $folderName

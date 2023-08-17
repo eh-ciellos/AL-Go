@@ -16,11 +16,11 @@ inputs:
   parentTelemetryScopeJson:
     description: Specifies the parent telemetry scope for the telemetry signal
     required: false
-    default: '7b7d'
+    default: "7b7d"
   projects:
     description: Projects to deploy
     required: false
-    default: ''
+    default: ""
   environmentName:
     description: Name of environment to deploy to
     required: true
@@ -30,7 +30,7 @@ inputs:
   type:
     description: Type of deployment (CD or Publish)
     required: false
-    default: 'CD'
+    default: "CD"
 runs:
   using: composite
   steps:

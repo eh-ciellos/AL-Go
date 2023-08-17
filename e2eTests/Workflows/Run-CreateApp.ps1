@@ -12,11 +12,11 @@
 
     $workflowName = 'Create a new app'
     $parameters = @{
-        "project" = $project
-        "name" = $name
-        "publisher" = $publisher
-        "idrange" = $idrange
-        "directCommit" = @("Y","N")[!$directCommit]
+        "project"      = $project
+        "name"         = $name
+        "publisher"    = $publisher
+        "idrange"      = $idrange
+        "directCommit" = @("Y", "N")[!$directCommit]
     }
     RunWorkflow -name $workflowName -parameters $parameters -wait:$wait -branch $branch -repository $repository
 }

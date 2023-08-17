@@ -47,7 +47,7 @@ function Test-Json {
     Param(
         [hashtable] $json,
         [string] $settingsDescription,
-        [ValidateSet('Repo','Project','Workflow','Variable')]
+        [ValidateSet('Repo', 'Project', 'Workflow', 'Variable')]
         [string] $type
     )
 
@@ -71,8 +71,8 @@ function Test-Json {
         # templateUrl should not be in Project or Workflow settings
         Test-Property -settingsDescription $settingsDescription -json $json -key 'templateUrl' -maynot
 
-        # schedules and runs-on should not be in Project or Workflow settings        
-        'nextMajorSchedule','nextMinorSchedule','currentSchedule','githubRunner','runs-on' | ForEach-Object {
+        # schedules and runs-on should not be in Project or Workflow settings
+        'nextMajorSchedule', 'nextMinorSchedule', 'currentSchedule', 'githubRunner', 'runs-on' | ForEach-Object {
             Test-Property -settingsDescription $settingsDescription -json $json -key $_ -shouldnot
         }
     }
@@ -82,7 +82,7 @@ function Test-JsonStr {
     Param(
         [string] $jsonStr,
         [string] $settingsDescription,
-        [ValidateSet('Repo','Project','Workflow','Variable')]
+        [ValidateSet('Repo', 'Project', 'Workflow', 'Variable')]
         [string] $type
     )
 
@@ -104,11 +104,11 @@ function Test-JsonFile {
     Param(
         [string] $jsonFile,
         [string] $baseFolder,
-        [ValidateSet('Repo','Project','Workflow')]
+        [ValidateSet('Repo', 'Project', 'Workflow')]
         [string] $type
     )
 
-    $settingsFile = $jsonFile.Substring($baseFolder.Length+1)
+    $settingsFile = $jsonFile.Substring($baseFolder.Length + 1)
     Write-Host "Checking AL-Go $type settings file in $settingsFile (type = $type)"
 
     Test-JsonStr -org -jsonStr (Get-Content -Path $jsonFile -Raw -Encoding UTF8) -settingsDescription $settingsFile -type $type
@@ -118,7 +118,7 @@ function Test-ALGoRepository {
     Param(
         [string] $baseFolder
     )
-    
+
     if ($ENV:ALGoOrgSettings) {
         Write-Host "Checking AL-Go Org Settings variable (ALGoOrgSettings)"
         Test-JsonStr -jsonStr "$ENV:ALGoOrgSettings" -settingsDescription 'ALGoOrgSettings variable' -type 'Variable'
@@ -149,19 +149,19 @@ function Test-ALGoRepository {
 }
 
 function Write-Big {
-Param(
-    [string] $str
-)
-$chars = @{
-"0" = @'
-   ___  
-  / _ \ 
+    Param(
+        [string] $str
+    )
+    $chars = @{
+        "0" = @'
+   ___
+  / _ \
  | | | |
  | | | |
  | |_| |
-  \___/ 
+  \___/
 '@.Split("`n")
-"1" = @'
+        "1" = @'
   __
  /_ |
   | |
@@ -169,121 +169,121 @@ $chars = @{
   | |
   |_|
 '@.Split("`n")
-"2" = @'
-  ___  
- |__ \ 
+        "2" = @'
+  ___
+ |__ \
     ) |
-   / / 
-  / /_ 
+   / /
+  / /_
  |____|
 '@.Split("`n")
-"3" = @'
-  ____  
- |___ \ 
+        "3" = @'
+  ____
+ |___ \
    __) |
-  |__ < 
+  |__ <
   ___) |
- |____/ 
+ |____/
 '@.Split("`n")
-"4" = @'
-  _  _   
- | || |  
- | || |_ 
+        "4" = @'
+  _  _
+ | || |
+ | || |_
  |__   _|
-    | |  
-    |_|  
+    | |
+    |_|
 '@.Split("`n")
-"5" = @'
-  _____ 
+        "5" = @'
+  _____
  | ____|
- | |__  
- |___ \ 
+ | |__
+ |___ \
   ___) |
- |____/ 
+ |____/
 '@.Split("`n")
-"6" = @'
-    __  
-   / /  
-  / /_  
- | '_ \ 
+        "6" = @'
+    __
+   / /
+  / /_
+ | '_ \
  | (_) |
-  \___/ 
+  \___/
 '@.Split("`n")
-"7" = @'
-  ______ 
+        "7" = @'
+  ______
  |____  |
-     / / 
-    / /  
-   / /   
-  /_/    
+     / /
+    / /
+   / /
+  /_/
 '@.Split("`n")
-"8" = @'
-   ___  
-  / _ \ 
+        "8" = @'
+   ___
+  / _ \
  | (_) |
-  > _ < 
+  > _ <
  | (_) |
-  \___/ 
+  \___/
 '@.Split("`n")
-"9" = @'
-   ___  
-  / _ \ 
+        "9" = @'
+   ___
+  / _ \
  | (_) |
   \__, |
-    / / 
-   /_/  
+    / /
+   /_/
 '@.Split("`n")
-"." = @'
-    
-    
-    
-    
-  _ 
+        "." = @'
+
+
+
+
+  _
  (_)
 '@.Split("`n")
-"v" = @'
-        
-        
+        "v" = @'
+
+
  __   __
  \ \ / /
-  \ V / 
+  \ V /
    \_(_)
 '@.Split("`n")
-"p" = @'
-  _____                _               
- |  __ \              (_)              
+        "p" = @'
+  _____                _
+ |  __ \              (_)
  | |__) | __ _____   ___  _____      __
  |  ___/ '__/ _ \ \ / / |/ _ \ \ /\ / /
- | |   | | |  __/\ V /| |  __/\ V  V / 
- |_|   |_|  \___| \_/ |_|\___| \_/\_/  
+ | |   | | |  __/\ V /| |  __/\ V  V /
+ |_|   |_|  \___| \_/ |_|\___| \_/\_/
 '@.Split("`n")
-"d" = @'
-  _____             
- |  __ \            
+        "d" = @'
+  _____
+ |  __ \
  | |  | | _____   __
  | |  | |/ _ \ \ / /
- | |__| |  __/\ V / 
+ | |__| |  __/\ V /
  |_____/ \___| \_(_)
 '@.Split("`n")
-"a" = @'
-           _           _____          __              _____ _ _   _    _       _       
-     /\   | |         / ____|        / _|            / ____(_) | | |  | |     | |      
-    /  \  | |  ______| |  __  ___   | |_ ___  _ __  | |  __ _| |_| |__| |_   _| |__    
-   / /\ \ | | |______| | |_ |/ _ \  |  _/ _ \| '__| | | |_ | | __|  __  | | | | '_ \   
-  / ____ \| |____    | |__| | (_) | | || (_) | |    | |__| | | |_| |  | | |_| | |_) |  
- /_/    \_\______|    \_____|\___/  |_| \___/|_|     \_____|_|\__|_|  |_|\__,_|_.__/   
+        "a" = @'
+           _           _____          __              _____ _ _   _    _       _
+     /\   | |         / ____|        / _|            / ____(_) | | |  | |     | |
+    /  \  | |  ______| |  __  ___   | |_ ___  _ __  | |  __ _| |_| |__| |_   _| |__
+   / /\ \ | | |______| | |_ |/ _ \  |  _/ _ \| '__| | | |_ | | __|  __  | | | | '_ \
+  / ____ \| |____    | |__| | (_) | | || (_) | |    | |__| | | |_| |  | | |_| | |_) |
+ /_/    \_\______|    \_____|\___/  |_| \___/|_|     \_____|_|\__|_|  |_|\__,_|_.__/
 '@.Split("`n")
-}
-
-
-0..5 | ForEach-Object {
-    $line = $_
-    $str.ToCharArray() | ForEach-Object {
-        if ($chars.Keys -contains $_) {
-            $ch = $chars."$_"
-            Write-Host -noNewline $ch[$line]
-        }
     }
-    Write-Host
-}
+
+
+    0..5 | ForEach-Object {
+        $line = $_
+        $str.ToCharArray() | ForEach-Object {
+            if ($chars.Keys -contains $_) {
+                $ch = $chars."$_"
+                Write-Host -noNewline $ch[$line]
+            }
+        }
+        Write-Host
+    }
 }

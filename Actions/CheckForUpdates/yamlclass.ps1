@@ -35,15 +35,15 @@ class Yaml {
         if ($line.Contains('/')) {
             $idx = $line.IndexOf('/')
             $find = $line.Split('/')[0]
-            $rest = $line.Substring($idx+1)
+            $rest = $line.Substring($idx + 1)
             $s1 = 0
             $c1 = 0
             if ($rest -eq '') {
                 [Yaml] $yaml = $this.Get($find, [ref] $s1, [ref] $c1)
                 if ($yaml) {
-                   $start.value = $s1+1
-                   $count.value = $c1-1
-                   return $true
+                    $start.value = $s1 + 1
+                    $count.value = $c1 - 1
+                    return $true
                 }
             }
             else {
@@ -52,7 +52,7 @@ class Yaml {
                     $s2 = 0
                     $c2 = 0
                     if ($yaml.Find($rest, [ref] $s2, [ref] $c2)) {
-                        $start.value = $s1+$s2
+                        $start.value = $s1 + $s2
                         $count.value = $c2
                         return $true
                     }
@@ -63,7 +63,7 @@ class Yaml {
         else {
             $start.value = -1
             $count.value = 0
-            for($i=0; $i -lt $this.content.Count; $i++) {
+            for ($i = 0; $i -lt $this.content.Count; $i++) {
                 $s = "$($this.content[$i])  "
                 if ($s -like "$($line)*") {
                     if ($s.TrimEnd() -eq $line) {
@@ -76,17 +76,17 @@ class Yaml {
                     }
                 }
                 elseif ($start.value -ne -1 -and $s -notlike "  *") {
-                    if ($this.content[$i-1].Trim() -eq '') {
-                        $count.value = ($i-$start.value-1)
+                    if ($this.content[$i - 1].Trim() -eq '') {
+                        $count.value = ($i - $start.value - 1)
                     }
                     else {
-                        $count.value = ($i-$start.value)
+                        $count.value = ($i - $start.value)
                     }
                     return $true
                 }
             }
             if ($start.value -ne -1) {
-                $count.value = $this.content.Count-$start.value
+                $count.value = $this.content.Count - $start.value
                 return $true
             }
             else {
@@ -105,10 +105,10 @@ class Yaml {
         $s = 0
         $c = 0
         if ($this.Find($line, [ref] $s, [ref] $c)) {
-            $charCount = ($line.ToCharArray() | Where-Object {$_ -eq '/'} | Measure-Object).Count
-            [string[]] $result = @($this.content | Select-Object -Skip $s -First $c | ForEach-Object { 
-                "$_$("  "*$charCount)".Substring(2*$charCount).TrimEnd() 
-            } )
+            $charCount = ($line.ToCharArray() | Where-Object { $_ -eq '/' } | Measure-Object).Count
+            [string[]] $result = @($this.content | Select-Object -Skip $s -First $c | ForEach-Object {
+                    "$_$("  "*$charCount)".Substring(2 * $charCount).TrimEnd()
+                } )
             $start.value = $s
             $count.value = $c
             return [Yaml]::new($result)
@@ -134,7 +134,7 @@ class Yaml {
         [int]$start = 0
         [int]$count = 0
         if ($this.Find($line, [ref] $start, [ref] $count)) {
-            $charCount = ($line.ToCharArray() | Where-Object {$_ -eq '/'} | Measure-Object).Count
+            $charCount = ($line.ToCharArray() | Where-Object { $_ -eq '/' } | Measure-Object).Count
             if ($charCount) {
                 $yamlContent = $content | ForEach-Object { "$("  "*$charCount)$_".TrimEnd() }
             }
@@ -142,13 +142,13 @@ class Yaml {
                 $yamlContent = $content
             }
             if ($start -eq 0) {
-                $this.content = $yamlContent+$this.content[($start+$count)..($this.content.Count-1)]
+                $this.content = $yamlContent + $this.content[($start + $count)..($this.content.Count - 1)]
             }
-            elseif ($start+$count -eq $this.content.Count) {
-                $this.content = $this.content[0..($start-1)]+$yamlContent
+            elseif ($start + $count -eq $this.content.Count) {
+                $this.content = $this.content[0..($start - 1)] + $yamlContent
             }
             else {
-                $this.content = $this.content[0..($start-1)]+$yamlContent+$this.content[($start+$count)..($this.content.Count-1)]
+                $this.content = $this.content[0..($start - 1)] + $yamlContent + $this.content[($start + $count)..($this.content.Count - 1)]
             }
         }
         else {

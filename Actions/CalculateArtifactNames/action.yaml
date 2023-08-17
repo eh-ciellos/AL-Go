@@ -17,7 +17,7 @@ inputs:
   suffix:
     description: Suffix to add to the artifacts names
     required: false
-    default: ''
+    default: ""
 outputs:
   ThisBuildAppsArtifactsName:
     description: Artifact name for apps being built in the current workflow run

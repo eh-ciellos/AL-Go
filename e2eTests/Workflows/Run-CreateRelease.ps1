@@ -15,14 +15,14 @@
 
     $workflowName = 'Create release'
     $parameters = @{
-        "appVersion" = $appVersion
-        "name" = $name
-        "tag" = $tag
-        "prerelease" = @("Y","N")[!$prerelease]
-        "draft" = @("Y","N")[!$draft]
-        "createReleaseBranch" = @("Y","N")[!$createReleaseBranch]
+        "appVersion"          = $appVersion
+        "name"                = $name
+        "tag"                 = $tag
+        "prerelease"          = @("Y", "N")[!$prerelease]
+        "draft"               = @("Y", "N")[!$draft]
+        "createReleaseBranch" = @("Y", "N")[!$createReleaseBranch]
         "updateVersionNumber" = $updateVersionNumber
-        "directCommit" = @("Y","N")[!$directCommit]
+        "directCommit"        = @("Y", "N")[!$directCommit]
     }
     RunWorkflow -name $workflowName -parameters $parameters -wait:$wait -branch $branch -repository $repository
 }

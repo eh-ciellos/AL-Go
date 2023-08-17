@@ -22,12 +22,12 @@ ContainerName and BlobName can contain "variable", like {project}, {version} and
 In order to setup **continuous delivery** to a **storage account**, you need to have an Azure Account and setup a storage account in the **Azure Portal**, and create a **blob container** with the name of the the calculated container (based on containerName in the StorageContext). After this, create the secret above manually or use the **New-ALGoStorageContext** from BcContainerHelper.
 
 | ![image](https://user-images.githubusercontent.com/10775043/232289028-e73c8395-b39d-49d7-9e5b-52eb8e8c8db4.png) |
-|-|
+| --------------------------------------------------------------------------------------------------------------- |
 
 and when running **CI/CD** afterwards, you will see that continuous delivery is now setup for a storage account as well
 
 | ![image](https://user-images.githubusercontent.com/10775043/232289443-9109d260-8009-470f-950a-b8960ab2a44e.png) |
-|-|
+| --------------------------------------------------------------------------------------------------------------- |
 
 ## AppSource
 Continuous delivery to **AppSource** is supported by the AppSource template and will be included in the workshop later, but basically, creating a secret called **AppSourceContext** and setting a **AppSourceContinuousDelivery** to true in the repository settings file.

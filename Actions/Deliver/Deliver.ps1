@@ -12,7 +12,7 @@ Param(
     [Parameter(HelpMessage = "Artifacts to deliver", Mandatory = $true)]
     [string] $artifacts,
     [Parameter(HelpMessage = "Type of delivery (CD or Release)", Mandatory = $false)]
-    [ValidateSet('CD','Release')]
+    [ValidateSet('CD', 'Release')]
     [string] $type = "CD",
     [Parameter(HelpMessage = "Types of artifacts to deliver (Apps,Dependencies,TestApps)", Mandatory = $false)]
     [string] $atypes = "Apps,Dependencies,TestApps",
@@ -38,7 +38,7 @@ function EnsureAzStorageModule() {
             Set-Alias -Name Set-AzStorageBlobContent -Value Set-AzureStorageBlobContent -Scope Script
         }
         else {
-            Write-Host "Installing and importing Az.Storage." 
+            Write-Host "Installing and importing Az.Storage."
             Install-Module 'Az.Storage' -Force
             Import-Module  'Az.Storage' -DisableNameChecking -WarningAction SilentlyContinue | Out-Null
         }
@@ -53,21 +53,21 @@ try {
     import-module (Join-Path -path $PSScriptRoot -ChildPath "../TelemetryHelper.psm1" -Resolve)
     $telemetryScope = CreateScope -eventId 'DO0081' -parentTelemetryScopeJson $parentTelemetryScopeJson
 
-    $refname = "$ENV:GITHUB_REF_NAME".Replace('/','_')
+    $refname = "$ENV:GITHUB_REF_NAME".Replace('/', '_')
 
     if ($projects -eq '') { $projects = "*" }
     if ($projects.StartsWith('[')) {
         $projects = ($projects | ConvertFrom-Json) -join ","
     }
 
-    $artifacts = $artifacts.Replace('/',([System.IO.Path]::DirectorySeparatorChar)).Replace('\',([System.IO.Path]::DirectorySeparatorChar))
+    $artifacts = $artifacts.Replace('/', ([System.IO.Path]::DirectorySeparatorChar)).Replace('\', ([System.IO.Path]::DirectorySeparatorChar))
 
     $settings = ReadSettings -baseFolder $baseFolder
     if ($settings.projects) {
         $projectList = $settings.projects | Where-Object { $_ -like $projects }
     }
     else {
-        $projectList = @(Get-ChildItem -Path $baseFolder -Recurse -Depth 2 | Where-Object { $_.PSIsContainer -and (Test-Path (Join-Path $_.FullName ".AL-Go/settings.json") -PathType Leaf) } | ForEach-Object { $_.FullName.Substring($baseFolder.length+1) })
+        $projectList = @(Get-ChildItem -Path $baseFolder -Recurse -Depth 2 | Where-Object { $_.PSIsContainer -and (Test-Path (Join-Path $_.FullName ".AL-Go/settings.json") -PathType Leaf) } | ForEach-Object { $_.FullName.Substring($baseFolder.length + 1) })
         if (Test-Path (Join-Path $baseFolder ".AL-Go") -PathType Container) {
             $projectList += @(".")
         }
@@ -79,7 +79,7 @@ try {
         throw "No projects matches the pattern '$projects'"
     }
     if ($deliveryTarget -eq "AppSource") {
-        $atypes = "Apps,Dependencies"        
+        $atypes = "Apps,Dependencies"
     }
     Write-Host "Artifacts $artifacts"
     Write-Host "Projects:"
@@ -96,7 +96,7 @@ try {
         $thisProject = $_
         # $project should be the project part of the artifact name generated from the build
         if ($thisProject -and ($thisProject -ne '.')) {
-            $project = $thisProject.Replace('\','_').Replace('/','_')
+            $project = $thisProject.Replace('\', '_').Replace('/', '_')
         }
         else {
             $project = $settings.repoName
@@ -138,7 +138,7 @@ try {
             if ($artifactFile -notlike '*.zip') {
                 throw "Downloaded artifact is not a .zip file"
             }
-            Expand-Archive -Path $artifactFile -DestinationPath ($artifactFile.SubString(0,$artifactFile.Length-4))
+            Expand-Archive -Path $artifactFile -DestinationPath ($artifactFile.SubString(0, $artifactFile.Length - 4))
             Remove-Item $artifactFile -Force
         }
         else {
@@ -157,7 +157,7 @@ try {
                         if ($artifactFile -notlike '*.zip') {
                             throw "Downloaded artifact is not a .zip file"
                         }
-                        Expand-Archive -Path $artifactFile -DestinationPath ($artifactFile.SubString(0,$artifactFile.Length-4))
+                        Expand-Archive -Path $artifactFile -DestinationPath ($artifactFile.SubString(0, $artifactFile.Length - 4))
                         Remove-Item $artifactFile -Force
                     }
                 }
@@ -182,26 +182,26 @@ try {
 
         if (Test-Path $customScript -PathType Leaf) {
             Write-Host "Found custom script $customScript for delivery target $deliveryTarget"
-            
+
             $projectSettings = ReadSettings -baseFolder $baseFolder -project $thisProject
             $projectSettings = AnalyzeRepo -settings $projectSettings -baseFolder $baseFolder -project $thisProject -doNotCheckArtifactSetting -doNotCheckAppDependencyProbingPaths -doNotIssueWarnings
             $parameters = @{
-                "Project" = $thisProject
-                "ProjectName" = $projectName
-                "type" = $type
-                "Context" = $env:deliveryContext
-                "RepoSettings" = $settings
+                "Project"         = $thisProject
+                "ProjectName"     = $projectName
+                "type"            = $type
+                "Context"         = $env:deliveryContext
+                "RepoSettings"    = $settings
                 "ProjectSettings" = $projectSettings
             }
             #Calculate the folders per artifact type
-            
+
             #Calculate the folders per artifact type
             'Apps', 'TestApps', 'Dependencies' | ForEach-Object {
                 $artifactType = $_
                 $singleArtifactFilter = "$project-$refname-$artifactType-*.*.*.*";
 
                 # Get the folder holding the artifacts from the standard build
-                $artifactFolder =  @(Get-ChildItem -Path (Join-Path $artifactsFolder $singleArtifactFilter) -Directory)
+                $artifactFolder = @(Get-ChildItem -Path (Join-Path $artifactsFolder $singleArtifactFilter) -Directory)
 
                 # Verify that there is an apps folder
                 if ($artifactFolder.Count -eq 0 -and $artifactType -eq "Apps") {
@@ -226,7 +226,7 @@ try {
                     $parameters[$artifactType.ToLowerInvariant() + "Folders"] = $artifactFolders.FullName
                 }
             }
-            
+
             Write-Host "Calling custom script: $customScript"
             . $customScript -parameters $parameters
         }
@@ -241,10 +241,10 @@ try {
                 elseif ($folder.Count -eq 1) {
                     Get-Item -Path (Join-Path $folder[0] "*.app") | ForEach-Object {
                         $parameters = @{
-                            "gitHubRepository" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
+                            "gitHubRepository"         = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
                             "includeNuGetDependencies" = $true
-                            "dependencyIdTemplate" = "AL-Go-{id}"
-                            "packageId" = "AL-Go-{id}"
+                            "dependencyIdTemplate"     = "AL-Go-{id}"
+                            "packageId"                = "AL-Go-{id}"
                         }
                         $parameters.appFiles = $_.FullName
                         $package = New-BcNuGetPackage @parameters
@@ -293,7 +293,7 @@ try {
                 $parameters.dependencyAppFiles = @(Get-Item -Path (Join-Path $dependenciesFolder[0] "*.app") | ForEach-Object { $_.FullName })
             }
             if ($nuGetAccount.Keys -contains 'PackageName') {
-                $parameters.packageId = $nuGetAccount.PackageName.replace('{project}',$projectName).replace('{owner}',$ENV:GITHUB_REPOSITORY_OWNER).replace('{repo}',$settings.repoName)
+                $parameters.packageId = $nuGetAccount.PackageName.replace('{project}', $projectName).replace('{owner}', $ENV:GITHUB_REPOSITORY_OWNER).replace('{repo}', $settings.repoName)
             }
             else {
                 if ($thisProject -and ($thisProject -eq '.')) {
@@ -306,12 +306,12 @@ try {
             if ($type -eq 'CD') {
                 $parameters.packageId += "-preview"
             }
-            $parameters.packageVersion = [System.Version]$appsFolder[0].Name.SubString($appsFolder[0].Name.IndexOf("-Apps-")+6)
+            $parameters.packageVersion = [System.Version]$appsFolder[0].Name.SubString($appsFolder[0].Name.IndexOf("-Apps-") + 6)
             if ($nuGetAccount.Keys -contains 'PackageTitle') {
                 $parameters.packageTitle = $nuGetAccount.PackageTitle
             }
             else {
-                 $parameters.packageTitle = $parameters.packageId
+                $parameters.packageTitle = $parameters.packageId
             }
             if ($nuGetAccount.Keys -contains 'PackageDescription') {
                 $parameters.packageDescription = $nuGetAccount.PackageDescription
@@ -356,7 +356,7 @@ try {
                 }
             }
 
-            $storageContainerName =  $storageAccount.ContainerName.ToLowerInvariant().replace('{project}',$projectName).replace('{branch}',$refname).ToLowerInvariant()
+            $storageContainerName = $storageAccount.ContainerName.ToLowerInvariant().replace('{project}', $projectName).replace('{branch}', $refname).ToLowerInvariant()
             $storageBlobName = $storageAccount.BlobName.ToLowerInvariant()
             Write-Host "Storage Container Name is $storageContainerName"
             Write-Host "Storage Blob Name is $storageBlobName"
@@ -380,11 +380,11 @@ try {
                 }
                 else {
                     $artfolder = $artfolder[0].FullName
-                    $version = $artfolder.SubString($artfolder.IndexOf("-$refname-$atype-")+"-$refname-$atype-".Length)
+                    $version = $artfolder.SubString($artfolder.IndexOf("-$refname-$atype-") + "-$refname-$atype-".Length)
                     Write-Host $artfolder
-                    $versions = @("$version-preview","preview")
+                    $versions = @("$version-preview", "preview")
                     if ($type -eq "Release") {
-                        $versions += @($version,"latest")
+                        $versions += @($version, "latest")
                     }
                     $tempFile = Join-Path ([System.IO.Path]::GetTempPath()) "$([Guid]::newguid().ToString()).zip"
                     try {
@@ -392,7 +392,7 @@ try {
                         Compress-Archive -Path (Join-Path $artfolder '*') -DestinationPath $tempFile -Force
                         $versions | ForEach-Object {
                             $version = $_
-                            $blob = $storageBlobName.replace('{project}',$projectName).replace('{branch}',$refname).replace('{version}',$version).replace('{type}',$atype).ToLowerInvariant()
+                            $blob = $storageBlobName.replace('{project}', $projectName).replace('{branch}', $refname).replace('{version}', $version).replace('{type}', $atype).ToLowerInvariant()
                             Write-Host "Delivering $blob"
                             Set-AzStorageBlobContent -Context $azStorageContext -Container $storageContainerName -File $tempFile -blob $blob -Force | Out-Null
                         }

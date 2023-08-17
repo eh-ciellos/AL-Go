@@ -16,7 +16,7 @@ Describe "CreateApp Action Tests" {
 
     It 'Test action.yaml matches script' {
         $permissions = [ordered]@{
-            "contents" = "write"
+            "contents"      = "write"
             "pull-requests" = "write"
         }
         $outputs = [ordered]@{

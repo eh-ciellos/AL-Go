@@ -12,30 +12,29 @@ function New-BuildDimensions(
     [Parameter(HelpMessage = "A list of AL-Go projects for which to generate build dimensions")]
     $projects = @(),
     $baseFolder
-)
-{
+) {
     $buildDimensions = @()
-    
+
     $projects | ForEach-Object {
         $project = $_
-        
+
         $projectSettings = ReadSettings -project $project -baseFolder $baseFolder
         $buildModes = @($projectSettings.buildModes)
 
-        if(!$buildModes) {
+        if (!$buildModes) {
             Write-Host "No build modes found for project $project, using default build mode 'Default'."
             $buildModes = @('Default')
         }
-        
+
         $buildModes | ForEach-Object {
             $buildMode = $_
             $buildDimensions += @{
-                project = $project
+                project   = $project
                 buildMode = $buildMode
             }
         }
     }
-    
+
     return @(, $buildDimensions) # force array
 }
 
@@ -50,7 +49,7 @@ function Get-FilteredProjectsToBuild($settings, $projects, $baseFolder, $modifie
     if ($settings.alwaysBuildAllProjects) {
         Write-Host "Building all projects because alwaysBuildAllProjects is set to true"
         return $projects
-    } 
+    }
 
     if (!$modifiedFiles) {
         Write-Host "No files modified, building all projects"
@@ -61,7 +60,7 @@ function Get-FilteredProjectsToBuild($settings, $projects, $baseFolder, $modifie
         Write-Host "Changes to repo Settings, building all projects"
         return $projects
     }
-    
+
     if ($modifiedFiles.Count -ge 250) {
         Write-Host "More than 250 files modified, building all projects"
         return $projects
@@ -114,79 +113,78 @@ function Get-ProjectsToBuild(
     $modifiedFiles = @(),
     [Parameter(HelpMessage = "The maximum depth to build the dependency tree", Mandatory = $false)]
     $maxBuildDepth = 0
-) 
-{
+) {
     Write-Host "Determining projects to build in $baseFolder"
-    
+
     Push-Location $baseFolder
 
     try {
         $settings = ReadSettings -baseFolder $baseFolder -project '.' # Read AL-Go settings for the repo
-        
+
         if ($settings.projects) {
             Write-Host "Projects specified in settings"
             $projects = $settings.projects
         }
         else {
             # Get all projects that have a settings.json file
-            $projects = @(Get-ChildItem -Path $baseFolder -Recurse -Depth 2 | Where-Object { $_.PSIsContainer -and (Test-Path (Join-Path $_.FullName ".AL-Go/settings.json") -PathType Leaf) } | ForEach-Object { $_.FullName.Substring($baseFolder.length+1) })
-            
+            $projects = @(Get-ChildItem -Path $baseFolder -Recurse -Depth 2 | Where-Object { $_.PSIsContainer -and (Test-Path (Join-Path $_.FullName ".AL-Go/settings.json") -PathType Leaf) } | ForEach-Object { $_.FullName.Substring($baseFolder.length + 1) })
+
             # If the repo has a settings.json file, add it to the list of projects to build
             if (Test-Path (Join-Path ".AL-Go" "settings.json") -PathType Leaf) {
                 $projects += @(".")
             }
         }
-        
+
         Write-Host "Found AL-Go Projects: $($projects -join ', ')"
-        
+
         $projectsToBuild = @()
         $projectDependencies = @{}
         $projectsOrderToBuild = @()
-        
+
         if ($projects) {
             $projectsToBuild += Get-FilteredProjectsToBuild -baseFolder $baseFolder -settings $settings -projects $projects -modifiedFiles $modifiedFiles
-            
-            if($settings.useProjectDependencies) {
+
+            if ($settings.useProjectDependencies) {
                 $buildAlso = @{}
 
                 # Calculate the full projects order
                 $fullProjectsOrder = AnalyzeProjectDependencies -baseFolder $baseFolder -projects $projects -buildAlso ([ref]$buildAlso) -projectDependencies ([ref]$projectDependencies)
-                
+
                 $projectsToBuild = @($projectsToBuild | ForEach-Object { $_; if ($buildAlso.Keys -contains $_) { $buildAlso."$_" } } | Select-Object -Unique)
             }
             else {
                 # Use a flatten build order (all projects on the same level)
-                $fullProjectsOrder = @(@{ 'projects' = $projectsToBuild; 'projectsCount' = $projectsToBuild.Count})
+                $fullProjectsOrder = @(@{ 'projects' = $projectsToBuild; 'projectsCount' = $projectsToBuild.Count })
             }
 
             # Create a project order based on the projects to build
-            foreach($depth in $fullProjectsOrder) {
+            foreach ($depth in $fullProjectsOrder) {
                 $projectsOnDepth = @($depth.projects | Where-Object { $projectsToBuild -contains $_ })
 
                 if ($projectsOnDepth) {
                     # Create build dimensions for the projects on the current depth
                     $buildDimensions = New-BuildDimensions -baseFolder $baseFolder -projects $projectsOnDepth
                     $projectsOrderToBuild += @{
-                        projects = $projectsOnDepth
-                        projectsCount = $projectsOnDepth.Count
+                        projects        = $projectsOnDepth
+                        projectsCount   = $projectsOnDepth.Count
                         buildDimensions = $buildDimensions
                     }
                 }
             }
         }
-        
+
         if ($projectsOrderToBuild.Count -eq 0) {
             Write-Host "Did not find any projects to add to the build order, adding default values"
             $projectsOrderToBuild += @{
-                projects = @()
-                projectsCount = 0
+                projects        = @()
+                projectsCount   = 0
                 buildDimensions = @()
             }
         }
         Write-Host "Projects to build: $($projectsToBuild -join ', ')"
 
-        if($maxBuildDepth -and ($projectsOrderToBuild.Count -gt $maxBuildDepth)) {
-            throw "The build depth is too deep, the maximum build depth is $maxBuildDepth. You need to run 'Update AL-Go System Files' to update the workflows" 
+        if ($maxBuildDepth -and ($projectsOrderToBuild.Count -gt $maxBuildDepth)) {
+            throw "The build depth is too deep, the maximum build depth is $maxBuildDepth. You need to run 'Update AL-Go System Files' to update the workflows"
         }
 
         return $projects, $projectsToBuild, $projectDependencies, $projectsOrderToBuild

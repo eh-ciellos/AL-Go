@@ -36,7 +36,7 @@ Describe "ResolveProjectFolders" {
             └───testApp2
                     app.json
         #>
-        $ALGoProject =  'AL-GoProject'
+        $ALGoProject = 'AL-GoProject'
         $ALGoProjectFolder = Join-Path $baseFolder $ALGoProject
         $ALGoSettingsFile = Join-Path $ALGoProjectFolder '.AL-Go/settings.json'
 
@@ -45,11 +45,11 @@ Describe "ResolveProjectFolders" {
 
         # Create AL-Go settings file
         $ALGoSettings = @{
-            "appFolders" = @(
+            "appFolders"      = @(
                 "app1",
                 "nestedApp\app2"
             );
-            "testFolders" = @(
+            "testFolders"     = @(
                 "testApp1",
                 "testApp2"
             );
@@ -59,7 +59,7 @@ Describe "ResolveProjectFolders" {
             )
         }
 
-        $alGoSettingsContent = $ALGoSettings | ConvertTo-Json -Depth 99 
+        $alGoSettingsContent = $ALGoSettings | ConvertTo-Json -Depth 99
         New-Item -Path $ALGoSettingsFile -Value $alGoSettingsContent -Force
 
         # Create the app folders
@@ -72,7 +72,7 @@ Describe "ResolveProjectFolders" {
             "testApp2"
         )
         $apps = @{}
-        
+
         $appFolders | ForEach-Object {
             $appFolder = Join-Path $ALGoProjectFolder $_
             New-Item $appFolder -ItemType Directory | Out-Null
@@ -80,11 +80,11 @@ Describe "ResolveProjectFolders" {
 
             # Create the app.json file with random ID and no dependencies
             $app = [ordered]@{
-                "id" = [Guid]::NewGuid().ToString()
-                "name" = $_
+                "id"           = [Guid]::NewGuid().ToString()
+                "name"         = $_
                 "dependencies" = @()
             }
-            $appJsonContent = $app | ConvertTo-Json -Depth 99 
+            $appJsonContent = $app | ConvertTo-Json -Depth 99
             New-Item -Path $appJson -Value $appJsonContent -Force
 
             $apps.Add($_, $app)
@@ -96,7 +96,7 @@ Describe "ResolveProjectFolders" {
             $appJson = Get-Content $appJsonFile | ConvertFrom-Json
             $appJson.dependencies += @(
                 @{
-                    "id" = $dependencyAppId
+                    "id"   = $dependencyAppId
                     "name" = $dependencyAppName
                 }
             )
@@ -119,7 +119,7 @@ Describe "ResolveProjectFolders" {
     }
 
     It 'When no app folders specified, scans all folders and finds all apps' {
-        $projectSettings = @{ 'appFolders' = @(); 'testFolders' = @(); 'bcptTestFolders' = @()}
+        $projectSettings = @{ 'appFolders' = @(); 'testFolders' = @(); 'bcptTestFolders' = @() }
         ResolveProjectFolders -baseFolder $baseFolder -project $ALGoProject -projectSettings ([ref] $projectSettings)
 
         $projectSettings.appFolders | Should -HaveCount 2
@@ -136,10 +136,10 @@ Describe "ResolveProjectFolders" {
     }
 
     It 'When only appFolders specified, scan only app folders and resolves them' {
-        $projectSettings = @{ 'appFolders' = @('app1'); 'testFolders' = @(); 'bcptTestFolders' = @()}
+        $projectSettings = @{ 'appFolders' = @('app1'); 'testFolders' = @(); 'bcptTestFolders' = @() }
 
         ResolveProjectFolders -baseFolder $baseFolder -project $ALGoProject -projectSettings ([ref] $projectSettings)
-        
+
         $projectSettings.appFolders | Should -HaveCount 1
         $projectSettings.appFolders | Should -Contain $(Join-Path '.' 'app1')
 
@@ -149,10 +149,10 @@ Describe "ResolveProjectFolders" {
     }
 
     It 'When appFolders contains non-existing apps, they are not resolved' {
-        $projectSettings = @{ 'appFolders' = @('nonExistingApp', 'app1'); 'testFolders' = @('nonExistingTestApp'); 'bcptTestFolders' = @('nonExistingBCPTApp')}
+        $projectSettings = @{ 'appFolders' = @('nonExistingApp', 'app1'); 'testFolders' = @('nonExistingTestApp'); 'bcptTestFolders' = @('nonExistingBCPTApp') }
 
         ResolveProjectFolders -baseFolder $baseFolder -project $ALGoProject -projectSettings ([ref] $projectSettings)
-        
+
         $projectSettings.appFolders | Should -HaveCount 1
         $projectSettings.appFolders | Should -Contain $(Join-Path '.' 'app1')
 
@@ -162,10 +162,10 @@ Describe "ResolveProjectFolders" {
     }
 
     It 'When only non-existing apps are specified, no app folders are resolved' {
-        $projectSettings = @{ 'appFolders' = @('nonExistingApp'); 'testFolders' = @('nonExistingTestApp'); 'bcptTestFolders' = @()}
+        $projectSettings = @{ 'appFolders' = @('nonExistingApp'); 'testFolders' = @('nonExistingTestApp'); 'bcptTestFolders' = @() }
 
         ResolveProjectFolders -baseFolder $baseFolder -project $ALGoProject -projectSettings ([ref] $projectSettings)
-        
+
         $projectSettings.appFolders | Should -HaveCount 0
 
         $projectSettings.testFolders | Should -HaveCount 0
@@ -174,7 +174,7 @@ Describe "ResolveProjectFolders" {
     }
 
     It 'When app folders are specified, only the specified app folders are resolved' {
-        $projectSettings = @{ 'appFolders' = @('nestedApp\app2'); 'testFolders' = @('testApp1'); 'bcptTestFolders' = @('bcptApp2')}
+        $projectSettings = @{ 'appFolders' = @('nestedApp\app2'); 'testFolders' = @('testApp1'); 'bcptTestFolders' = @('bcptApp2') }
         ResolveProjectFolders -baseFolder $baseFolder -project $ALGoProject -projectSettings ([ref] $projectSettings)
 
         $projectSettings.appFolders | Should -HaveCount 1
@@ -186,7 +186,7 @@ Describe "ResolveProjectFolders" {
         $projectSettings.bcptTestFolders | Should -HaveCount 1
         $projectSettings.bcptTestFolders | Should -Contain $(Join-Path '.' 'bcptApp2')
     }
-    
+
     AfterAll {
         Pop-Location
         Remove-Item -Path $baseFolder -Recurse -Force

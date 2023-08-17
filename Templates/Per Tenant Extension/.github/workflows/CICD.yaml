@@ -1,13 +1,13 @@
-name: ' CI/CD'
+name: " CI/CD"
 
 on:
   workflow_dispatch:
   push:
     paths-ignore:
-      - '**.md'
-      - '.github/workflows/*.yaml'
-      - '!.github/workflows/CICD.yaml'
-    branches: [ 'main', 'release/*', 'feature/*' ]
+      - "**.md"
+      - ".github/workflows/*.yaml"
+      - "!.github/workflows/CICD.yaml"
+    branches: ["main", "release/*", "feature/*"]
 
 defaults:
   run:
@@ -24,7 +24,7 @@ env:
 
 jobs:
   Initialization:
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
     outputs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       environments: ${{ steps.ReadSettings.outputs.EnvironmentsJson }}
@@ -57,14 +57,14 @@ jobs:
         with:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
-          getEnvironments: '*'
+          getEnvironments: "*"
           get: type
 
       - name: Determine Workflow Depth
         id: DetermineWorkflowDepth
         run: |
           Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "WorkflowDepth=$($env:workflowDepth)"
-          
+
       - name: Determine Projects To Build
         id: determineProjectsToBuild
         uses: microsoft/AL-Go-Actions/DetermineProjectsToBuild@main
@@ -150,8 +150,8 @@ jobs:
           Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "DeliveryTargets=$deliveryTargetsJson"
 
   CheckForUpdates:
-    runs-on: [ windows-latest ]
-    needs: [ Initialization ]
+    runs-on: [windows-latest]
+    needs: [Initialization]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -171,7 +171,7 @@ jobs:
           templateUrl: ${{ env.templateUrl }}
 
   Build:
-    needs: [ Initialization ]
+    needs: [Initialization]
     if: (!failure()) && (!cancelled()) && fromJson(needs.Initialization.outputs.buildOrderJson)[0].projectsCount > 0
     strategy:
       matrix:
@@ -187,14 +187,14 @@ jobs:
       project: ${{ matrix.project }}
       buildMode: ${{ matrix.buildMode }}
       projectDependenciesJson: ${{ needs.Initialization.outputs.projectDependenciesJson }}
-      secrets: 'licenseFileUrl,insiderSasToken,codeSignCertificateUrl,codeSignCertificatePassword,keyVaultCertificateUrl,keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext,applicationInsightsConnectionString'
+      secrets: "licenseFileUrl,insiderSasToken,codeSignCertificateUrl,codeSignCertificatePassword,keyVaultCertificateUrl,keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext,applicationInsightsConnectionString"
       publishThisBuildArtifacts: ${{ needs.Initialization.outputs.workflowDepth > 1 }}
       publishArtifacts: ${{ github.ref_name == 'main' || startswith(github.ref_name, 'release/') || needs.Initialization.outputs.deliveryTargetCount > 0 || needs.Initialization.outputs.environmentCount > 0 }}
       signArtifacts: true
       useArtifactCache: true
 
   Deploy:
-    needs: [ Initialization, Build ]
+    needs: [Initialization, Build]
     if: always() && needs.Build.result == 'Success' && needs.Initialization.outputs.environmentCount > 0
     strategy: ${{ fromJson(needs.Initialization.outputs.environments) }}
     runs-on: ${{ fromJson(matrix.os) }}
@@ -208,7 +208,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          path: '.artifacts'
+          path: ".artifacts"
 
       - name: EnvName
         id: envName
@@ -227,7 +227,7 @@ jobs:
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: '${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext,${{ steps.envName.outputs.envName }}-EnvironmentName,${{ steps.envName.outputs.envName }}_EnvironmentName,EnvironmentName,projects'
+          getSecrets: "${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext,${{ steps.envName.outputs.envName }}-EnvironmentName,${{ steps.envName.outputs.envName }}_EnvironmentName,EnvironmentName,projects"
 
       - name: AuthContext
         id: authContext
@@ -250,7 +250,7 @@ jobs:
                 Write-Host "Using $_ secret as AuthContext"
                 $authContext = $secrets."$_"
               }
-            }            
+            }
           }
           if (!($authContext)) {
             Write-Host "::Error::No AuthContext provided"
@@ -268,7 +268,7 @@ jobs:
                   Write-Host "::Warning::Please consider using the $settingsName setting, where you can specify EnvironmentName, projects and branches - instead of specifying the EnvironmentName in a Secret."
                   $EnvironmentName = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($secrets."$_"))
                 }
-              }            
+              }
             }
           }
           if (!($environmentName)) {
@@ -313,19 +313,19 @@ jobs:
           AuthContext: ${{ steps.authContext.outputs.authContext }}
         with:
           shell: powershell
-          type: 'CD'
+          type: "CD"
           projects: ${{ steps.authContext.outputs.projects }}
           environmentName: ${{ steps.authContext.outputs.environmentName }}
-          artifacts: '.artifacts'
+          artifacts: ".artifacts"
 
   Deliver:
-    needs: [ Initialization, Build ]
+    needs: [Initialization, Build]
     if: always() && needs.Build.result == 'Success' && needs.Initialization.outputs.deliveryTargetCount > 0
     strategy:
       matrix:
         deliveryTarget: ${{ fromJson(needs.Initialization.outputs.deliveryTargets) }}
       fail-fast: false
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
     name: Deliver to ${{ matrix.deliveryTarget }}
     steps:
       - name: Checkout
@@ -334,7 +334,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
-          path: '.artifacts'
+          path: ".artifacts"
 
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@main
@@ -346,7 +346,7 @@ jobs:
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: '${{ matrix.deliveryTarget }}Context'
+          getSecrets: "${{ matrix.deliveryTarget }}Context"
 
       - name: DeliveryContext
         id: deliveryContext
@@ -364,15 +364,15 @@ jobs:
           deliveryContext: ${{ steps.deliveryContext.outputs.deliveryContext }}
         with:
           shell: powershell
-          type: 'CD'
+          type: "CD"
           projects: ${{ needs.Initialization.outputs.projects }}
           deliveryTarget: ${{ matrix.deliveryTarget }}
-          artifacts: '.artifacts'
+          artifacts: ".artifacts"
 
   PostProcess:
     if: (!cancelled())
-    runs-on: [ windows-latest ]
-    needs: [ Initialization, Build, Deploy, Deliver ]
+    runs-on: [windows-latest]
+    needs: [Initialization, Build, Deploy, Deliver]
     steps:
       - name: Checkout
         uses: actions/checkout@v3

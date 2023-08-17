@@ -10,9 +10,9 @@
 
     $workflowName = 'Increment Version Number'
     $parameters = @{
-        "project" = $project
+        "project"       = $project
         "versionNumber" = $versionNumber
-        "directCommit" = @("Y","N")[!$directCommit]
+        "directCommit"  = @("Y", "N")[!$directCommit]
     }
     RunWorkflow -name $workflowName -parameters $parameters -wait:$wait -branch $branch -repository $repository
 }

@@ -25,7 +25,7 @@ $projectPath = $null
 
 try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
-    $BcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE 
+    $BcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE
 
     import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
     $telemetryScope = CreateScope -eventId 'DO0080' -parentTelemetryScopeJson $parentTelemetryScopeJson
@@ -37,12 +37,12 @@ try {
             docker pull --quiet $genericImageName
         } -ArgumentList $genericImageName | Out-Null
     }
-  
+
     $containerName = GetContainerName($project)
 
     $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
-    $branch = $ap[$ap.Count-2]
-    $owner = $ap[$ap.Count-4]
+    $branch = $ap[$ap.Count - 2]
+    $owner = $ap[$ap.Count - 4]
 
     if ($owner -ne "microsoft") {
         $verstr = "dev"
@@ -53,11 +53,11 @@ try {
 
     $runAlPipelineParams = @{
         "sourceRepositoryUrl" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
-        "sourceCommit" = $ENV:GITHUB_SHA
-        "buildBy" = "AL-Go for GitHub,$verstr"
-        "buildUrl" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID"
+        "sourceCommit"        = $ENV:GITHUB_SHA
+        "buildBy"             = "AL-Go for GitHub,$verstr"
+        "buildUrl"            = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID"
     }
-    if ($project  -eq ".") { $project = "" }
+    if ($project -eq ".") { $project = "" }
     $baseFolder = $ENV:GITHUB_WORKSPACE
     if ($bcContainerHelperConfig.useVolumes -and $bcContainerHelperConfig.hostHelperFolder -eq "HostHelperFolder") {
         $allVolumes = "{$(((docker volume ls --format "'{{.Name}}': '{{.Mountpoint}}'") -join ",").Replace('\','\\').Replace("'",'"'))}" | ConvertFrom-Json | ConvertTo-HashTable
@@ -83,7 +83,7 @@ try {
     $secrets = $env:Secrets | ConvertFrom-Json | ConvertTo-HashTable
     $appBuild = $settings.appBuild
     $appRevision = $settings.appRevision
-    'licenseFileUrl','insiderSasToken','codeSignCertificateUrl','codeSignCertificatePassword','keyVaultCertificateUrl','keyVaultCertificatePassword','keyVaultClientId','gitHubPackagesContext','applicationInsightsConnectionString' | ForEach-Object {
+    'licenseFileUrl', 'insiderSasToken', 'codeSignCertificateUrl', 'codeSignCertificatePassword', 'keyVaultCertificateUrl', 'keyVaultCertificatePassword', 'keyVaultClientId', 'gitHubPackagesContext', 'applicationInsightsConnectionString' | ForEach-Object {
         # Secrets might not be read during Pull Request runs
         if ($secrets.Keys -contains $_) {
             $value = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($secrets."$_"))
@@ -137,27 +137,27 @@ try {
 
     # Analyze app.json version dependencies before launching pipeline
 
-    # Analyze InstallApps and InstallTestApps before launching pipeline 
+    # Analyze InstallApps and InstallTestApps before launching pipeline
 
     # Check if codeSignCertificateUrl+Password is used (and defined)
     if (!$repo.doNotSignApps -and $codeSignCertificateUrl -and $codeSignCertificatePassword -and !$repo.keyVaultCodesignCertificateName) {
         OutputWarning -message "Using the legacy CodeSignCertificateUrl and CodeSignCertificatePassword parameters. Consider using the new Azure Keyvault signing instead. Go to https://aka.ms/ALGoSettings#keyVaultCodesignCertificateName to find out more"
-        $runAlPipelineParams += @{ 
-            "CodeSignCertPfxFile" = $codeSignCertificateUrl
+        $runAlPipelineParams += @{
+            "CodeSignCertPfxFile"     = $codeSignCertificateUrl
             "CodeSignCertPfxPassword" = ConvertTo-SecureString -string $codeSignCertificatePassword -AsPlainText -Force
         }
     }
     if ($applicationInsightsConnectionString) {
-        $runAlPipelineParams += @{ 
+        $runAlPipelineParams += @{
             "applicationInsightsConnectionString" = $applicationInsightsConnectionString
         }
     }
 
     if ($keyVaultCertificateUrl -and $keyVaultCertificatePassword -and $keyVaultClientId) {
-        $runAlPipelineParams += @{ 
-            "KeyVaultCertPfxFile" = $keyVaultCertificateUrl
+        $runAlPipelineParams += @{
+            "KeyVaultCertPfxFile"     = $keyVaultCertificateUrl
             "keyVaultCertPfxPassword" = ConvertTo-SecureString -string $keyVaultCertificatePassword -AsPlainText -Force
-            "keyVaultClientId" = $keyVaultClientId
+            "keyVaultClientId"        = $keyVaultClientId
         }
     }
 
@@ -212,7 +212,7 @@ try {
             "appVersion" = $repo.repoVersion
         }
     }
-    
+
     $buildArtifactFolder = Join-Path $projectPath ".buildartifacts"
     New-Item $buildArtifactFolder -ItemType Directory | Out-Null
 
@@ -271,7 +271,7 @@ try {
                     if ($repo."$prop") {
                         Write-Host "Importing config packages from $prop"
                         $repo."$prop" | ForEach-Object {
-                            $configPackage = $_.Split(',')[0].Replace('{COUNTRY}',$country)
+                            $configPackage = $_.Split(',')[0].Replace('{COUNTRY}', $country)
                             $packageId = $_.Split(',')[1]
                             UploadImportAndApply-ConfigPackageInBcContainer `
                                 -containerName $parameters.containerName `
@@ -281,7 +281,7 @@ try {
                                 -PackageId $packageId
                         }
                     }
-               }
+                }
             }
         }
     }
@@ -294,13 +294,13 @@ try {
                 $parameters.missingDependencies | ForEach-Object {
                     $appid = $_.Split(':')[0]
                     $appName = $_.Split(':')[1]
-                    $version = $appName.SubString($appName.LastIndexOf('_')+1)
-                    $version = [System.Version]$version.SubString(0,$version.Length-4)
+                    $version = $appName.SubString($appName.LastIndexOf('_') + 1)
+                    $version = [System.Version]$version.SubString(0, $version.Length - 4)
                     $publishParams = @{
                         "nuGetServerUrl" = $gitHubPackagesCredential.serverUrl
-                        "nuGetToken" = $gitHubPackagesCredential.token
-                        "packageName" = "AL-Go-$appId"
-                        "version" = $version
+                        "nuGetToken"     = $gitHubPackagesCredential.token
+                        "packageName"    = "AL-Go-$appId"
+                        "version"        = $version
                     }
                     if ($parameters.ContainsKey('CopyInstalledAppsToFolder')) {
                         $publishParams += @{
@@ -336,7 +336,7 @@ try {
         if ($repo."$_") { $runAlPipelineParams += @{ "$_" = $true } }
     }
 
-    switch($buildMode){
+    switch ($buildMode) {
         'Clean' {
             $preprocessorsymbols = $repo.cleanModePreprocessorSymbols
 
@@ -366,7 +366,7 @@ try {
         -imageName $imageName `
         -bcAuthContext $authContext `
         -environment $environmentName `
-        -artifact $repo.artifact.replace('{INSIDERSASTOKEN}',$insiderSasToken) `
+        -artifact $repo.artifact.replace('{INSIDERSASTOKEN}', $insiderSasToken) `
         -vsixFile $repo.vsixFile `
         -companyName $repo.companyName `
         -memoryLimit $repo.memoryLimit `

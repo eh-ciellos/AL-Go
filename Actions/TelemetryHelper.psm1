@@ -16,7 +16,7 @@ $signals = @{
 
     "DO0084" = "AL-Go action ran: DetermineArtifactUrl"
     "DO0085" = "AL-Go action ran: DetermineProjectsToBuild"
-    
+
     "DO0090" = "AL-Go workflow ran: AddExistingAppOrTestApp"
     "DO0091" = "AL-Go workflow ran: CICD"
     "DO0092" = "AL-Go workflow ran: CreateApp"
@@ -40,7 +40,7 @@ Function strToHexStr {
     )
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($str)
     $hexStr = [System.Text.StringBuilder]::new($Bytes.Length * 2)
-    ForEach($byte in $Bytes){
+    ForEach ($byte in $Bytes) {
         $hexStr.AppendFormat("{0:x2}", $byte) | Out-Null
     }
     $hexStr.ToString()
@@ -51,8 +51,8 @@ Function hexStrToStr {
         [String] $hexStr
     )
     $Bytes = [byte[]]::new($hexStr.Length / 2)
-    For($i=0; $i -lt $hexStr.Length; $i+=2){
-        $Bytes[$i/2] = [convert]::ToByte($hexStr.Substring($i, 2), 16)
+    For ($i = 0; $i -lt $hexStr.Length; $i += 2) {
+        $Bytes[$i / 2] = [convert]::ToByte($hexStr.Substring($i, 2), 16)
     }
     [System.Text.Encoding]::UTF8.GetString($Bytes)
 }
@@ -63,7 +63,7 @@ function CreateScope {
         [string] $parentTelemetryScopeJson = '7b7d'
     )
 
-    $signalName = $signals[$eventId] 
+    $signalName = $signals[$eventId]
     if (-not $signalName) {
         throw "Invalid event id ($eventId) is enountered."
     }

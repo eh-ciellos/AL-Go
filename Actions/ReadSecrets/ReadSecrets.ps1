@@ -21,7 +21,7 @@ try {
         }
     }
     catch [System.Threading.AbandonedMutexException] {
-       Write-Host "Other process terminated abnormally"
+        Write-Host "Other process terminated abnormally"
     }
 
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
@@ -91,7 +91,7 @@ try {
                         throw "JSON Secret $secret contains line breaks. JSON Secrets should be compressed JSON (i.e. NOT contain any line breaks)."
                     }
                     $json.Keys | ForEach-Object {
-                        if (@("Scopes","TenantId","BlobName","ContainerName","StorageAccountName") -notcontains $_) {
+                        if (@("Scopes", "TenantId", "BlobName", "ContainerName", "StorageAccountName") -notcontains $_) {
                             # Mask individual values (but not Scopes, TenantId, BlobName, ContainerName and StorageAccountName)
                             MaskValue -key "$($secret).$($_)" -value $json."$_"
                         }
@@ -106,7 +106,7 @@ try {
     }
 
     if ($secretsCollection) {
-        Write-Host "The following secrets was not found: $(($secretsCollection | ForEach-Object { 
+        Write-Host "The following secrets was not found: $(($secretsCollection | ForEach-Object {
             $secretSplit = @($_.Split('='))
             if ($secretSplit.Count -eq 1) {
                 $secretSplit[0]

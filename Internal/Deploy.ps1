@@ -1,10 +1,10 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'directCommit', Justification = 'False positive.')]
 Param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [Hashtable] $config,
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string] $token,
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [bool] $directCommit
 )
 
@@ -20,15 +20,15 @@ function PushChanges
     [string] $CommitMessage,
     [Parameter(HelpMessage = "If true, the commit will be pushed directly to the base branch. If false, a pull request will be created", Mandatory = $false)]
     [bool] $DirectCommit
-)
-{
+) {
     invoke-git add .
 
     if ($DirectCommit) {
         # Direct commit to base branch
         invoke-git commit --allow-empty -m $CommitMessage
         invoke-git push origin $BaseBranch
-    } else {
+    }
+    else {
         # Create PR to base branch
         if (-not (git ls-remote --heads origin $BaseBranch)) {
             Write-Host "Branch $BaseBranch does not exist in origin. Creating it"
@@ -113,7 +113,7 @@ try {
 
     $dstOwnerAndRepo = @{
         "perTenantExtensionRepo" = "$($config.githubOwner)/$($config.perTenantExtensionRepo)"
-        "appSourceAppRepo" = "$($config.githubOwner)/$($config.appSourceAppRepo)"
+        "appSourceAppRepo"       = "$($config.githubOwner)/$($config.appSourceAppRepo)"
     }
 
     if ($config.branch -eq 'preview') {
@@ -140,10 +140,10 @@ try {
         Write-Host "Copy template repositories to main branch"
         $additionalRepos = @(
             @{ "repo" = $config.perTenantExtensionRepo; "srcPath" = Join-Path $baseRepoPath "Templates\Per Tenant Extension"; "dstPath" = $perTenantExtensionRepoPath; "branch" = "main" }
-            @{ "repo" = $config.appSourceAppRepo;       "srcPath" = Join-Path $baseRepoPath "Templates\AppSource App";        "dstPath" = $appSourceAppRepoPath;       "branch" = "main" }
-            @{ "repo" = $config.actionsRepo;            "srcPath" = Join-Path $baseRepoPath "Actions";                        "dstPath" = $actionsRepoPath;            "branch" = "main" }
+            @{ "repo" = $config.appSourceAppRepo; "srcPath" = Join-Path $baseRepoPath "Templates\AppSource App"; "dstPath" = $appSourceAppRepoPath; "branch" = "main" }
+            @{ "repo" = $config.actionsRepo; "srcPath" = Join-Path $baseRepoPath "Actions"; "dstPath" = $actionsRepoPath; "branch" = "main" }
             @{ "repo" = $config.perTenantExtensionRepo; "srcPath" = Join-Path $baseRepoPath "Templates\Per Tenant Extension"; "dstPath" = $perTenantExtensionRepoPath; "branch" = "preview" }
-            @{ "repo" = $config.appSourceAppRepo;       "srcPath" = Join-Path $baseRepoPath "Templates\AppSource App";        "dstPath" = $appSourceAppRepoPath;       "branch" = "preview" }
+            @{ "repo" = $config.appSourceAppRepo; "srcPath" = Join-Path $baseRepoPath "Templates\AppSource App"; "dstPath" = $appSourceAppRepoPath; "branch" = "preview" }
         )
     }
 

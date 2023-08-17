@@ -16,11 +16,11 @@ inputs:
   parentTelemetryScopeJson:
     description: Specifies the parent telemetry scope for the telemetry signal
     required: false
-    default: '7b7d'
+    default: "7b7d"
   projects:
     description: Projects to deliver (default is all)
     required: false
-    default: '*'
+    default: "*"
   deliveryTarget:
     description: Delivery target (AppSource or Storage)
     required: true
@@ -30,15 +30,15 @@ inputs:
   type:
     description: Type of delivery (CD or Release)
     required: false
-    default: 'CD'
+    default: "CD"
   atypes:
     description: Types of artifacts to deliver (Apps,Dependencies,TestApps)
     required: false
-    default: 'Apps,Dependencies,TestApps'
+    default: "Apps,Dependencies,TestApps"
   goLive:
     description: Promote AppSource App to Go Live? (Y/N)
     required: false
-    default: 'N'
+    default: "N"
 runs:
   using: composite
   steps:

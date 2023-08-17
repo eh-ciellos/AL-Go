@@ -1,4 +1,4 @@
-name: ' Publish To Environment'
+name: " Publish To Environment"
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       appVersion:
         description: App version to deploy to environment(s) (current, prerelease, draft, latest or version number)
         required: false
-        default: 'current'
+        default: "current"
       environmentName:
         description: Environment mask to receive the new version (* for all, PROD* for all environments starting with PROD)
         required: true
@@ -25,7 +25,7 @@ env:
 
 jobs:
   Initialization:
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
     outputs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       environments: ${{ steps.ReadSettings.outputs.EnvironmentsJson }}
@@ -50,7 +50,7 @@ jobs:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           getEnvironments: ${{ github.event.inputs.environmentName }}
-          includeProduction: 'Y'
+          includeProduction: "Y"
 
       - name: EnvName
         id: envName
@@ -67,7 +67,7 @@ jobs:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: '${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext'
+          getSecrets: "${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext"
 
       - name: Authenticate
         id: Authenticate
@@ -104,7 +104,7 @@ jobs:
           }
 
   Deploy:
-    needs: [ Initialization ]
+    needs: [Initialization]
     if: needs.Initialization.outputs.environmentCount > 0
     strategy: ${{ fromJson(needs.Initialization.outputs.environments) }}
     runs-on: ${{ fromJson(matrix.os) }}
@@ -134,7 +134,7 @@ jobs:
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
-          secrets: '${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext,${{ steps.envName.outputs.envName }}-EnvironmentName,${{ steps.envName.outputs.envName }}_EnvironmentName,EnvironmentName,projects'
+          secrets: "${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext,${{ steps.envName.outputs.envName }}-EnvironmentName,${{ steps.envName.outputs.envName }}_EnvironmentName,EnvironmentName,projects"
 
       - name: AuthContext
         id: authContext
@@ -157,7 +157,7 @@ jobs:
                 Write-Host "Using $_ secret as AuthContext"
                 $authContext = $secrets."$_"
               }
-            }            
+            }
           }
           if (!($authContext)) {
             Write-Host "::Error::No AuthContext provided"
@@ -175,7 +175,7 @@ jobs:
                   Write-Host "::Warning::Please consider using the $settingsName setting, where you can specify EnvironmentName, projects and branches - instead of specifying the EnvironmentName in a Secret."
                   $EnvironmentName = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($secrets."$_"))
                 }
-              }            
+              }
             }
           }
           if (!($environmentName)) {
@@ -221,15 +221,15 @@ jobs:
         with:
           shell: powershell
           parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
-          type: 'Publish'
+          type: "Publish"
           projects: ${{ steps.authContext.outputs.projects }}
           environmentName: ${{ steps.authContext.outputs.environmentName }}
           artifacts: ${{ github.event.inputs.appVersion }}
 
   PostProcess:
     if: always()
-    runs-on: [ windows-latest ]
-    needs: [ Initialization, Deploy ]
+    runs-on: [windows-latest]
+    needs: [Initialization, Deploy]
     steps:
       - name: Checkout
         uses: actions/checkout@v3

@@ -1,4 +1,4 @@
-name: 'Create a new test app'
+name: "Create a new test app"
 
 run-name: "Create a new test app in [${{ github.ref_name }}]"
 
@@ -8,26 +8,26 @@ on:
       project:
         description: Project name if the repository is setup for multiple projects
         required: false
-        default: '.'
+        default: "."
       name:
         description: Name
         required: true
-        default: '<YourAppName>.Test'         
+        default: "<YourAppName>.Test"
       publisher:
         description: Publisher
         required: true
       idrange:
         description: ID range
         required: true
-        default: '50000..99999'  
+        default: "50000..99999"
       sampleCode:
         description: Include Sample code (Y/N)
         required: false
-        default: 'Y'
+        default: "Y"
       directCommit:
         description: Direct COMMIT (Y/N)
         required: false
-        default: 'N'
+        default: "N"
       useGhTokenWorkflow:
         description: Use GhTokenWorkflow for Pull Request/COMMIT
         type: boolean
@@ -46,7 +46,7 @@ env:
 
 jobs:
   CreateTestApp:
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -72,7 +72,7 @@ jobs:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: 'ghTokenWorkflow'
+          getSecrets: "ghTokenWorkflow"
 
       - name: CalculateToken
         id: CalculateToken
@@ -98,7 +98,7 @@ jobs:
           token: ${{ steps.CalculateToken.outputs.ghToken }}
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           project: ${{ github.event.inputs.project }}
-          type: 'Test App'
+          type: "Test App"
           name: ${{ github.event.inputs.name }}
           publisher: ${{ github.event.inputs.publisher }}
           idrange: ${{ github.event.inputs.idrange }}

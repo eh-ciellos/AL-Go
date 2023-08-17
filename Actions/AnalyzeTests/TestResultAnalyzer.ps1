@@ -37,7 +37,7 @@ function GetTestResultSummary {
                 $appSkipped += [int]$_.skipped
                 $appTime += [decimal]::Parse($_.time, [System.Globalization.CultureInfo]::InvariantCulture)
             }
-            $appPassed = $appTests-$appFailed-$appSkipped
+            $appPassed = $appTests - $appFailed - $appSkipped
             Write-Host "- $appName, $appTests tests, $appPassed passed, $appFailed failed, $appSkipped skipped, $appTime seconds"
             $summarySb.Append("|$appName|$appTests|") | Out-Null
             if ($appPassed -gt 0) {
@@ -83,10 +83,10 @@ function GetTestResultSummary {
     }
     if ($totalFailed -gt 0) {
         if ($totalFailed -gt $failuresIncluded) {
-            $failuresSb.Insert(0,"<details><summary><i>$totalFailed failing tests (showing the first $failuresIncluded here, download test results to see all)</i></summary>") | Out-Null
+            $failuresSb.Insert(0, "<details><summary><i>$totalFailed failing tests (showing the first $failuresIncluded here, download test results to see all)</i></summary>") | Out-Null
         }
         else {
-            $failuresSb.Insert(0,"<details><summary><i>$totalFailed failing tests</i></summary>") | Out-Null
+            $failuresSb.Insert(0, "<details><summary><i>$totalFailed failing tests</i></summary>") | Out-Null
         }
         $failuresSb.Append("</details>") | Out-Null
         if (($summarySb.Length + $failuresSb.Length) -lt 65000) {

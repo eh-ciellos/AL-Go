@@ -15,13 +15,13 @@ $perTenantExtensionRepo = "$repoBaseName-PTE"
 $appSourceAppRepo = "$repoBaseName-AppSource"
 
 $config = [ordered]@{
-    "githubOwner" = $githubOwner
-    "actionsRepo" = $actionsRepo
-    "perTenantExtensionRepo" = $perTenantExtensionRepo
-    "appSourceAppRepo" = $appSourceAppRepo
-    "branch" = "main"
-    "localFolder" = ""
-    "baseFolder" = [System.IO.Path]::GetTempPath()
+    "githubOwner"                     = $githubOwner
+    "actionsRepo"                     = $actionsRepo
+    "perTenantExtensionRepo"          = $perTenantExtensionRepo
+    "appSourceAppRepo"                = $appSourceAppRepo
+    "branch"                          = "main"
+    "localFolder"                     = ""
+    "baseFolder"                      = [System.IO.Path]::GetTempPath()
     "defaultBcContainerHelperVersion" = $bcContainerHelperVersion
 }
 

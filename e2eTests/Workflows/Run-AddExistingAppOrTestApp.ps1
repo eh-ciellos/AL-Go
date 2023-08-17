@@ -10,9 +10,9 @@
 
     $workflowName = 'Add existing app or test app'
     $parameters = @{
-        "project" = $project
-        "url" = $url
-        "directCommit" = @("Y","N")[!$directCommit]
+        "project"      = $project
+        "url"          = $url
+        "directCommit" = @("Y", "N")[!$directCommit]
     }
     RunWorkflow -name $workflowName -parameters $parameters -wait:$wait -branch $branch -repository $repository
 }

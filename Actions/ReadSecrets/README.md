@@ -6,22 +6,22 @@ Additionally, the secrets specified by the authToken secret in AppDependencyProb
 ## INPUT
 
 ### ENV variables
-| Name | Description |
-| :-- | :-- |
+| Name     | Description                                                         |
+| :------- | :------------------------------------------------------------------ |
 | Settings | env.Settings must be set by a prior call to the ReadSettings Action |
 
 ### Parameters
-| Name | Required | Description | Default value |
-| :-- | :-: | :-- | :-- |
-| shell | | The shell (powershell or pwsh) in which the PowerShell script in this action should run | powershell |
-| parentTelemetryScopeJson | | Specifies the parent telemetry scope for the telemetry signal | {} |
-| getSecrets | Yes | Comma separated list of secrets to get (add appDependencyProbingPathsSecrets to request secrets needed for resolving dependencies in AppDependencyProbingPaths) | |
+| Name                     | Required | Description                                                                                                                                                     | Default value |
+| :----------------------- | :------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------ |
+| shell                    |          | The shell (powershell or pwsh) in which the PowerShell script in this action should run                                                                         | powershell    |
+| parentTelemetryScopeJson |          | Specifies the parent telemetry scope for the telemetry signal                                                                                                   | {}            |
+| getSecrets               |   Yes    | Comma separated list of secrets to get (add appDependencyProbingPathsSecrets to request secrets needed for resolving dependencies in AppDependencyProbingPaths) |               |
 
 ## OUTPUT
 
 ### ENV variables
-| Name | Description |
-| :-- | :-- |
+| Name    | Description                                                                                                                                |
+| :------ | :----------------------------------------------------------------------------------------------------------------------------------------- |
 | Secrets | A compressed json construct with all secrets base64 encoded. The secret value + the base64 value of the secret value are masked in the log |
 
 ### OUTPUT variables

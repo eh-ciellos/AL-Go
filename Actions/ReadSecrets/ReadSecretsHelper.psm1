@@ -6,7 +6,7 @@ $script:gitHubSecrets = $_gitHubSecrets | ConvertFrom-Json
 $script:keyvaultConnectionExists = $false
 $script:azureRm210 = $false
 $script:isKeyvaultSet = $script:gitHubSecrets.PSObject.Properties.Name -eq "AZURE_CREDENTIALS"
-$script:escchars = @(' ','!','\"','#','$','%','\u0026','\u0027','(',')','*','+',',','-','.','/','0','1','2','3','4','5','6','7','8','9',':',';','\u003c','=','\u003e','?','@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']','^','_',[char]96,'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','{','|','}','~')
+$script:escchars = @(' ', '!', '\"', '#', '$', '%', '\u0026', '\u0027', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '\u003c', '=', '\u003e', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', [char]96, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~')
 
 function IsKeyVaultSet {
     return $script:isKeyvaultSet
@@ -28,7 +28,7 @@ function MaskValue {
             $val2 += $_
         }
         else {
-           $val2 += $script:escchars[$chint-32]
+            $val2 += $script:escchars[$chint - 32]
         }
     }
 
@@ -48,7 +48,7 @@ function GetGithubSecret {
     if ($secretSplit.Count -gt 1) {
         $secret = $secretSplit[1]
     }
-    
+
     if ($script:gitHubSecrets.PSObject.Properties.Name -eq $secret) {
         $value = $script:githubSecrets."$secret"
         if ($value) {
@@ -59,7 +59,7 @@ function GetGithubSecret {
 
     return $null
 }
-	
+
 function Get-KeyVaultCredentials {
     if ($script:isKeyvaultSet) {
         $jsonStr = $script:gitHuBSecrets.AZURE_CREDENTIALS
@@ -91,8 +91,8 @@ function InstallKeyVaultModuleIfNeeded {
     if ($isWindows) {
         $azModulesPath = Get-ChildItem 'C:\Modules\az_*' | Where-Object { $_.PSIsContainer }
         if ($azModulesPath) {
-          Write-Host $azModulesPath.FullName
-          $ENV:PSModulePath = "$($azModulesPath.FullName);$(("$ENV:PSModulePath".Split(';') | Where-Object { $_ -notlike 'C:\\Modules\Azure*' }) -join ';')"
+            Write-Host $azModulesPath.FullName
+            $ENV:PSModulePath = "$($azModulesPath.FullName);$(("$ENV:PSModulePath".Split(';') | Where-Object { $_ -notlike 'C:\\Modules\Azure*' }) -join ';')"
         }
     }
 
@@ -121,7 +121,7 @@ function InstallKeyVaultModuleIfNeeded {
                 Disable-AzureRmDataCollection -WarningAction SilentlyContinue
             }
             else {
-                Write-Host "Installing and importing Az.KeyVault." 
+                Write-Host "Installing and importing Az.KeyVault."
                 Install-Module 'Az.KeyVault' -Force
                 Import-Module  'Az.KeyVault' -DisableNameChecking -WarningAction SilentlyContinue | Out-Null
             }
@@ -130,11 +130,11 @@ function InstallKeyVaultModuleIfNeeded {
 }
 
 function ConnectAzureKeyVaultIfNeeded {
-    param( 
+    param(
         [string] $subscriptionId,
         [string] $tenantId,
         [string] $clientId ,
-        [string] $clientSecret 
+        [string] $clientSecret
     )
     try {
         if ($script:keyvaultConnectionExists) {
@@ -169,11 +169,11 @@ function GetKeyVaultSecret {
     if (-not $script:isKeyvaultSet) {
         return $null
     }
-        
+
     if (-not $script:keyvaultConnectionExists) {
-            
+
         InstallKeyVaultModuleIfNeeded
-            
+
         $credentialsJson = Get-KeyVaultCredentials
         ConnectAzureKeyVaultIfNeeded -subscriptionId $credentialsJson.subscriptionId -tenantId $credentialsJson.tenantId -clientId $credentialsJson.clientId -clientSecret $credentialsJson.clientSecret
     }

@@ -11,16 +11,16 @@
 )
 
 Write-Host -ForegroundColor Yellow @'
-# _____      _                     ____                       _               
-#|  __ \    | |                   |  _ \                     | |              
-#| |__) |___| | ___  __ _ ___  ___| |_) |_ __ __ _ _ __   ___| |__   ___  ___ 
+# _____      _                     ____                       _
+#|  __ \    | |                   |  _ \                     | |
+#| |__) |___| | ___  __ _ ___  ___| |_) |_ __ __ _ _ __   ___| |__   ___  ___
 #|  _  // _ \ |/ _ \/ _` / __|/ _ \  _ <| '__/ _` | '_ \ / __| '_ \ / _ \/ __|
 #| | \ \  __/ |  __/ (_| \__ \  __/ |_) | | | (_| | | | | (__| | | |  __/\__ \
 #|_|  \_\___|_|\___|\__,_|___/\___|____/|_|  \__,_|_| |_|\___|_| |_|\___||___/
-#                                                                             
+#
 #
 # This test tests the following scenario:
-#                                                                                                      
+#
 #  - Create a new repository based on the PTE template with a single project HelloWorld app
 #  - Run the "CI/CD" workflow
 #    - Check that no previous release was found
@@ -46,7 +46,7 @@ Write-Host -ForegroundColor Yellow @'
 #  - Cleanup repositories
 #
 '@
-  
+
 $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
 $prevLocation = Get-Location
 $repoPath = ""
@@ -70,9 +70,9 @@ CreateAlGoRepository `
     -repository $repository `
     -branch $branch `
     -contentScript {
-        Param([string] $path)
-        CreateNewAppInFolder -folder $path -name "App" | Out-Null
-    }
+    Param([string] $path)
+    CreateNewAppInFolder -folder $path -name "App" | Out-Null
+}
 $repoPath = (Get-Location).Path
 Start-Process $repoPath
 
@@ -80,7 +80,7 @@ Start-Process $repoPath
 $run = Run-CICD -repository $repository -branch $branch -wait
 
 # Test number of artifacts
-Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps"=1} -repoVersion '1.0' -appVersion '1.0'
+Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps" = 1 } -repoVersion '1.0' -appVersion '1.0'
 
 # Check that no previous release was found
 Test-LogContainsFromRun -runid $run.id -jobName 'Build . - Default  . - Default' -stepName 'Run pipeline' -expectedText 'No previous release found'
@@ -97,7 +97,7 @@ Test-LogContainsFromRun -runid $release1.id -jobName 'CreateRelease' -stepName '
 $run = Run-CICD -repository $repository -branch $branch -wait
 
 # Test number of artifacts
-Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps"=1} -repoVersion '2.0' -appVersion '2.0'
+Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps" = 1 } -repoVersion '2.0' -appVersion '2.0'
 
 # Check that $tag1 was used as previous release
 Test-LogContainsFromRun -runid $run.id -jobName 'Build . - Default  . - Default' -stepName 'Run pipeline' -expectedText "Using $ver1 (tag $tag1) as previous release"
@@ -120,12 +120,12 @@ WaitWorkflow -runid $runRelease1.id -repository $repository -noDelay
 WaitWorkflow -runid $run.id -repository $repository -noDelay
 
 # Test number of artifacts
-Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps"=1} -repoVersion '2.1' -appVersion '2.1'
+Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps" = 1 } -repoVersion '2.1' -appVersion '2.1'
 
 # Check that $tag2 was used as previous release
 Test-LogContainsFromRun -runid $run.id -jobName 'Build . - Default  . - Default' -stepName 'Run pipeline' -expectedText "Using $ver2 (tag $tag2) as previous release"
 
-Test-ArtifactsFromRun -runid $runRelease1.id -folder 'artifacts1' -expectedArtifacts @{"Apps"=1} -repoVersion '1.0' -appVersion '1.0'
+Test-ArtifactsFromRun -runid $runRelease1.id -folder 'artifacts1' -expectedArtifacts @{"Apps" = 1 } -repoVersion '1.0' -appVersion '1.0'
 $noOfReleaseArtifacts = @(get-childitem -path 'artifacts1' -filter '*-release_1.0-Apps-1.0.*').count
 if ($noOfReleaseArtifacts -ne 1) {
     throw "Expected 1 artifact in release artifact1, but found $noOfReleaseArtifacts"
@@ -134,7 +134,7 @@ if ($noOfReleaseArtifacts -ne 1) {
 # Check that $tag1 was used as previous release for builds in release branch 1.0
 Test-LogContainsFromRun -runid $runRelease1.id -jobName 'Build . - Default  . - Default' -stepName 'Run pipeline' -expectedText "Using $ver1 (tag $tag1) as previous release"
 
-Test-ArtifactsFromRun -runid $runRelease2.id -folder 'artifacts2' -expectedArtifacts @{"Apps"=1} -repoVersion '2.0' -appVersion '2.0'
+Test-ArtifactsFromRun -runid $runRelease2.id -folder 'artifacts2' -expectedArtifacts @{"Apps" = 1 } -repoVersion '2.0' -appVersion '2.0'
 $noOfReleaseArtifacts = @(get-childitem -path 'artifacts2' -filter '*-release_2.0-Apps-2.0.*').count
 if ($noOfReleaseArtifacts -ne 1) {
     throw "Expected 1 artifact in release artifact2, but found $noOfReleaseArtifacts"
@@ -160,7 +160,7 @@ Test-LogContainsFromRun -runid $release2.id -jobName 'CreateRelease' -stepName '
 # Run CI/CD workflow in release branch 1.0
 $runRelease1 = Run-CICD -repository $repository -branch $releaseBranch1 -wait
 
-Test-ArtifactsFromRun -runid $runRelease1.id -folder 'artifacts3' -expectedArtifacts @{"Apps"=1} -repoVersion '1.0' -appVersion '1.0'
+Test-ArtifactsFromRun -runid $runRelease1.id -folder 'artifacts3' -expectedArtifacts @{"Apps" = 1 } -repoVersion '1.0' -appVersion '1.0'
 $noOfReleaseArtifacts = @(get-childitem -path 'artifacts3' -filter '*-release_1.0-Apps-1.0.*').count
 if ($noOfReleaseArtifacts -ne 1) {
     throw "Expected 1 artifact in release artifact3, but found $noOfReleaseArtifacts"

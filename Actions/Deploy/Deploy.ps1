@@ -12,7 +12,7 @@ Param(
     [Parameter(HelpMessage = "Artifacts to deploy", Mandatory = $true)]
     [string] $artifacts,
     [Parameter(HelpMessage = "Type of deployment (CD or Publish)", Mandatory = $false)]
-    [ValidateSet('CD','Publish')]
+    [ValidateSet('CD', 'Publish')]
     [string] $type = "CD"
 )
 
@@ -33,7 +33,7 @@ try {
 
     $EnvironmentName = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($environmentName))
 
-    $artifacts = $artifacts.Replace('/',([System.IO.Path]::DirectorySeparatorChar)).Replace('\',([System.IO.Path]::DirectorySeparatorChar))
+    $artifacts = $artifacts.Replace('/', ([System.IO.Path]::DirectorySeparatorChar)).Replace('\', ([System.IO.Path]::DirectorySeparatorChar))
 
     $apps = @()
     $artifactsFolder = Join-Path $ENV:GITHUB_WORKSPACE ".artifacts"
@@ -46,8 +46,8 @@ try {
     if ($artifacts -like "$($ENV:GITHUB_WORKSPACE)*") {
         if (Test-Path $artifacts -PathType Container) {
             $projects.Split(',') | ForEach-Object {
-                $project = $_.Replace('\','_').Replace('/','_')
-                $refname = "$ENV:GITHUB_REF_NAME".Replace('/','_')
+                $project = $_.Replace('\', '_').Replace('/', '_')
+                $refname = "$ENV:GITHUB_REF_NAME".Replace('/', '_')
                 Write-Host "project '$project'"
                 $apps += @((Get-ChildItem -Path $artifacts -Filter "$project-$refname-Apps-*.*.*.*") | ForEach-Object { $_.FullName })
                 if (!($apps)) {
@@ -137,7 +137,8 @@ try {
         if ($null -eq $bcAuthContext) {
             throw "Authentication failed"
         }
-    } catch {
+    }
+    catch {
         throw "Authentication failed. $([environment]::Newline) $($_.exception.message)"
     }
 

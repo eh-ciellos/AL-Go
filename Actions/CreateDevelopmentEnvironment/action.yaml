@@ -19,22 +19,22 @@ inputs:
   parentTelemetryScopeJson:
     description: Specifies the parent telemetry scope for the telemetry signal
     required: false
-    default: '7b7d'
+    default: "7b7d"
   environmentName:
     description: Name of the online environment
     required: true
   project:
     description: Project name if the repository is setup for multiple projects
     required: false
-    default: '.'
+    default: "."
   adminCenterApiCredentials:
     description: Admin center API credentials
     required: false
-    default: ''
+    default: ""
   reUseExistingEnvironment:
     description: Reuse environment if it exists
     required: false
-    default: 'N'
+    default: "N"
   updateBranch:
     description: Set the branch to update
     required: false
@@ -42,7 +42,7 @@ inputs:
   directCommit:
     description: Direct Commit (Y/N)
     required: false
-    default: 'N'
+    default: "N"
 runs:
   using: composite
   steps:

@@ -74,9 +74,9 @@ function ValidatePullRequestFiles
 }
 
 $headers = @{
-    "Authorization" = "token $token"
+    "Authorization"        = "token $token"
     "X-GitHub-Api-Version" = "2022-11-28"
-    "Accept" = "application/vnd.github+json"
+    "Accept"               = "application/vnd.github+json"
 }
 
 ValidatePullRequest -PullRequestRepository $prBaseRepository -PullRequestId $pullRequestId -Headers $headers

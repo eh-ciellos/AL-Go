@@ -53,7 +53,7 @@ function YamlTest {
     $systemParameters = @($emptyCmd.Parameters.Keys.GetEnumerator() | ForEach-Object { $_ })
 
     Invoke-Expression $actionScript
-    
+
     $yaml = [System.Text.StringBuilder]::new()
     $yaml.AppendLine("name: *") | Out-Null
     $yaml.AppendLine("author: *") | Out-Null
@@ -151,8 +151,8 @@ function YamlTest {
     $yaml.AppendLine("branding:") | Out-Null
     $yaml.AppendLine("  icon: terminal") | Out-Null
     $yaml.Append("  color: blue") | Out-Null
-    
-    $yamlLines = $yaml.ToString().Replace("`r","").Split("`n")
+
+    $yamlLines = $yaml.ToString().Replace("`r", "").Split("`n")
     $actualYaml = @(Get-Content -path (Join-Path $scriptRoot "action.yaml"))
 
     $i = 0
@@ -188,7 +188,7 @@ function TestActionsReferences {
 
         $origin | Should -Match "($alGoActionPattern|$gitHubActionPattern)"
 
-        if($origin -match $alGoActionPattern) {
+        if ($origin -match $alGoActionPattern) {
             $version | Should -Match "main|preview"
         }
     }

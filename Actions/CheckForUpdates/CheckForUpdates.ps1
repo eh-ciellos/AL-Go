@@ -14,7 +14,7 @@ Param(
     [Parameter(HelpMessage = "Set the branch to update", Mandatory = $false)]
     [string] $updateBranch,
     [Parameter(HelpMessage = "Direct Commit (Y/N)", Mandatory = $false)]
-    [bool] $directCommit    
+    [bool] $directCommit
 )
 
 $telemetryScope = $null
@@ -92,15 +92,15 @@ try {
     Write-Host "Using ArchiveUrl $archiveUrl"
 
     # Download the template repository and unpack to a temp folder
-    $headers = @{             
+    $headers = @{
         "Accept" = "application/vnd.github.baptiste-preview+json"
-        "token" = $token
+        "token"  = $token
     }
     $tempName = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
     InvokeWebRequest -Headers $headers -Uri $archiveUrl -OutFile "$tempName.zip" -retry
     Expand-7zipArchive -Path "$tempName.zip" -DestinationPath $tempName
     Remove-Item -Path "$tempName.zip"
-    
+
     # CheckFiles is an array of hashtables with the following properties:
     # dstPath: The path to the file in the current repository
     # srcPath: The path to the file in the template repository
@@ -130,7 +130,7 @@ try {
         $projects = $repoSettings.projects
     }
     else {
-        $projects = @(Get-ChildItem -Path $baseFolder -Recurse -Depth 2 -Force | Where-Object { $_.PSIsContainer -and (Test-Path (Join-Path $_.FullName ".AL-Go/settings.json") -PathType Leaf) } | ForEach-Object { $_.FullName.Substring($baseFolder.length+1) })
+        $projects = @(Get-ChildItem -Path $baseFolder -Recurse -Depth 2 -Force | Where-Object { $_.PSIsContainer -and (Test-Path (Join-Path $_.FullName ".AL-Go/settings.json") -PathType Leaf) } | ForEach-Object { $_.FullName.Substring($baseFolder.length + 1) })
     }
     # To support single project repositories, we check for the .AL-Go folder in the root
     if (Test-Path (Join-Path $baseFolder ".AL-Go")) {
@@ -158,7 +158,7 @@ try {
         $buildAlso = @{}
         $projectDependencies = @{}
         $projectsOrder = AnalyzeProjectDependencies -baseFolder $baseFolder -projects $projects -buildAlso ([ref]$buildAlso) -projectDependencies ([ref]$projectDependencies)
-        
+
         $depth = $projectsOrder.Count
         Write-Host "Calculated dependency depth to be $depth"
     }
@@ -192,7 +192,7 @@ try {
                         if ($repoSettings.Keys -contains $workflowScheduleKey) {
                             # Read the section under the on: key and add the schedule section
                             $yamlOn = $yaml.Get('on:/')
-                            $yaml.Replace('on:/', $yamlOn.content+@('schedule:', "  - cron: '$($repoSettings."$workflowScheduleKey")'"))
+                            $yaml.Replace('on:/', $yamlOn.content + @('schedule:', "  - cron: '$($repoSettings."$workflowScheduleKey")'"))
                         }
                     }
 
@@ -213,7 +213,7 @@ try {
                             $yaml.Replace('on:/push:/branches:', "branches: [ '$($cicdPushBranches -join "', '")' ]")
                         }
                         else {
-                            $yaml.Replace('on:/push:',@())
+                            $yaml.Replace('on:/push:', @())
                         }
                     }
 
@@ -257,18 +257,17 @@ try {
                     # PullRequestHandler, CICD, Current, NextMinor and NextMajor workflows all include a build step.
                     # If the dependency depth is higher than 1, we need to add multiple dependent build jobs to the workflow
                     if ($baseName -eq 'PullRequestHandler' -or $baseName -eq 'CICD' -or $baseName -eq 'Current' -or $baseName -eq 'NextMinor' -or $baseName -eq 'NextMajor') {
-                        $yaml.Replace('env:/workflowDepth:',"workflowDepth: $depth")
+                        $yaml.Replace('env:/workflowDepth:', "workflowDepth: $depth")
 
                         if ($depth -gt 1) {
                             # Also, duplicate the build job for each dependency depth
-                            
+
                             $build = $yaml.Get('jobs:/Build:/')
-                            if($build)
-                            {
+                            if ($build) {
                                 $newBuild = @()
 
                                 1..$depth | ForEach-Object {
-                                    $index = $_-1
+                                    $index = $_ - 1
 
                                     # All build job needs to have a dependency on the Initialization job
                                     $needs = @('Initialization')
@@ -289,7 +288,7 @@ try {
                                         #    if: (!failure()) && (!cancelled()) && (needs.Build2.result == 'success' || needs.Build2.result == 'skipped') && (needs.Build1.result == 'success' || needs.Build1.result == 'skipped') && fromJson(needs.Initialization.outputs.buildOrderJson)[0].projectsCount > 0
                                         $newBuild += @('')
                                         $ifpart = ""
-                                        ($_-1)..1 | ForEach-Object {
+                                        ($_ - 1)..1 | ForEach-Object {
                                             $needs += @("Build$_")
                                             $ifpart += " && (needs.Build$_.result == 'success' || needs.Build$_.result == 'skipped')"
                                         }
@@ -299,8 +298,8 @@ try {
                                     # Replace the if:, the needs: and the strategy/matrix/project: in the build job with the correct values
                                     $build.Replace('if:', $if)
                                     $build.Replace('needs:', "needs: [ $($needs -join ', ') ]")
-                                    $build.Replace('strategy:/matrix:/include:',"include: `${{ fromJson(needs.Initialization.outputs.buildOrderJson)[$index].buildDimensions }}")
-                                    
+                                    $build.Replace('strategy:/matrix:/include:', "include: `${{ fromJson(needs.Initialization.outputs.buildOrderJson)[$index].buildDimensions }}")
+
                                     # Last build job is called build, all other build jobs are called build1, build2, etc.
                                     if ($depth -eq $_) {
                                         $newBuild += @("Build:")
@@ -329,21 +328,21 @@ try {
                 if ($directALGo) {
                     # If we are using the direct AL-Go repo, we need to change the owner and repo names in the workflow
                     $lines = $srcContent.Split("`n")
-                    
+
                     # The Original Owner and Repo in the AL-Go repository are microsoft/AL-Go-Actions, microsoft/AL-Go-PTE and microsoft/AL-Go-AppSource
                     $originalOwnerAndRepo = @{
-                        "actionsRepo" = "microsoft/AL-Go-Actions"
+                        "actionsRepo"            = "microsoft/AL-Go-Actions"
                         "perTenantExtensionRepo" = "microsoft/AL-Go-PTE"
-                        "appSourceAppRepo" = "microsoft/AL-Go-AppSource"
+                        "appSourceAppRepo"       = "microsoft/AL-Go-AppSource"
                     }
                     # Original branch is always main
                     $originalBranch = "main"
 
                     # Modify the file to use repository names based on whether or not we are using the direct AL-Go repo
                     $templateRepos = @{
-                        "actionsRepo" = "AL-Go/Actions"
+                        "actionsRepo"            = "AL-Go/Actions"
                         "perTenantExtensionRepo" = "AL-Go"
-                        "appSourceAppRepo" = "AL-Go"
+                        "appSourceAppRepo"       = "AL-Go"
                     }
 
                     # Replace URL's to actions repository first
@@ -352,7 +351,7 @@ try {
                     $lines = $lines | ForEach-Object { $_ -replace $regex, $replace }
 
                     # Replace the owner and repo names in the workflow
-                    "actionsRepo","perTenantExtensionRepo","appSourceAppRepo" | ForEach-Object {
+                    "actionsRepo", "perTenantExtensionRepo", "appSourceAppRepo" | ForEach-Object {
                         $regex = "^(.*)$($originalOwnerAndRepo."$_")(.*)$originalBranch(.*)$"
                         $replace = "`${1}$($templateOwner)/$($templateRepos."$_")`${2}$($templateBranch)`${3}"
                         $lines = $lines | ForEach-Object { $_ -replace $regex, $replace }
@@ -426,7 +425,7 @@ try {
 
                 # checkout branch to update
                 invoke-git checkout $updateBranch
-                
+
                 # If $directCommit, then changes are made directly to the default branch
                 if (!$directcommit) {
                     # If not direct commit, create a new branch with name, relevant to the current date and base branch, and switch to it

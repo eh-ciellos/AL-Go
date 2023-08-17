@@ -24,7 +24,7 @@ Describe "Get-ProjectsToBuild" {
 
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['.'] | Should -BeExactly @()
-       
+
         # Build order should have the following structure:
         #[
         #  {
@@ -34,7 +34,7 @@ Describe "Get-ProjectsToBuild" {
         #    "projectsCount":  1,
         #    "buildDimensions":  [
         #       {
-    #             "buildMode": "Default",
+        #             "buildMode": "Default",
         #         "project": "."
         #       }
         #    ]
@@ -49,7 +49,7 @@ Describe "Get-ProjectsToBuild" {
         $buildOrder[0].buildDimensions[0].project | Should -BeExactly "."
     }
 
-    
+
     It 'loads two independent projects with no build modes set' {
         New-Item -Path "$baseFolder/Project1/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project2/.AL-Go/settings.json" -type File -Force
@@ -62,7 +62,7 @@ Describe "Get-ProjectsToBuild" {
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['Project1'] | Should -BeExactly @()
         $projectDependencies['Project2'] | Should -BeExactly @()
-       
+
         # Build order should have the following structure:
         #[
         #  {
@@ -78,7 +78,7 @@ Describe "Get-ProjectsToBuild" {
         #       },
         #       {
         #         "buildMode": "Default",
-        #         "project": "Project2"    
+        #         "project": "Project2"
         #    ]
         #  }
         #]
@@ -105,7 +105,7 @@ Describe "Get-ProjectsToBuild" {
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['Project1'] | Should -BeExactly @()
         $projectDependencies['Project2'] | Should -BeExactly @()
-       
+
         # Build order should have the following structure:
         #[
         #  {
@@ -126,7 +126,7 @@ Describe "Get-ProjectsToBuild" {
         #       {
         #         "buildMode": "Translated",
         #         "project": "Project2"
-        #       },    
+        #       },
         #    ]
         #  }
         #]
@@ -149,7 +149,7 @@ Describe "Get-ProjectsToBuild" {
         New-Item -Path "$baseFolder/Project1/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project1/app/app.json" -Value (ConvertTo-Json $appJson) -type File -Force
         New-Item -Path "$baseFolder/Project2/.AL-Go/settings.json" -type File -Force
-        
+
         # Add AL-Go settings file
         $alGoSettings = @{ alwaysBuildAllProjects = $false }
         New-Item -Path "$baseFolder/.github/AL-Go-Settings.json" -Value (ConvertTo-Json $alGoSettings -Depth 99) -type File -Force
@@ -164,7 +164,7 @@ Describe "Get-ProjectsToBuild" {
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['Project1'] | Should -BeExactly @()
         $projectDependencies['Project2'] | Should -BeExactly @()
-       
+
         # Build order should have the following structure:
         #[
         #  {
@@ -199,7 +199,7 @@ Describe "Get-ProjectsToBuild" {
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['Project1'] | Should -BeExactly @()
         $projectDependencies['Project2'] | Should -BeExactly @()
-       
+
         # Build order should have the following structure:
         #[
         #  {
@@ -341,7 +341,7 @@ Describe "Get-ProjectsToBuild" {
         #       {
         #         "buildMode": "Default",
         #         "project": "Project1"
-        #       } 
+        #       }
         #    ]
         #  }
         #]
@@ -368,10 +368,10 @@ Describe "Get-ProjectsToBuild" {
         New-Item -Path "$baseFolder/.github/AL-Go-Settings.json" -Value (ConvertTo-Json $alGoSettings) -type File -Force
 
         $allProjects, $projectsToBuild, $projectDependencies, $buildOrder = Get-ProjectsToBuild -baseFolder $baseFolder
-        
+
         $allProjects | Should -BeExactly @("Project1", "Project2")
         $projectsToBuild | Should -BeExactly @("Project1", "Project2")
-        
+
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['Project1'] | Should -BeExactly @()
         $projectDependencies['Project2'] | Should -BeExactly @()
@@ -392,7 +392,7 @@ Describe "Get-ProjectsToBuild" {
         #       {
         #         "buildMode": "Default",
         #         "project": "Project1"
-        #       } 
+        #       }
         #    ]
         #  }
         #]
@@ -418,10 +418,10 @@ Describe "Get-ProjectsToBuild" {
         New-Item -Path "$baseFolder/.github/AL-Go-Settings.json" -Value (ConvertTo-Json $alGoSettings) -type File -Force
 
         $allProjects, $projectsToBuild, $projectDependencies, $buildOrder = Get-ProjectsToBuild -baseFolder $baseFolder
-        
+
         $allProjects | Should -BeExactly @("Project1", "Project2")
         $projectsToBuild | Should -BeExactly @("Project1", "Project2")
-        
+
         $projectDependencies | Should -BeOfType System.Collections.Hashtable
         $projectDependencies['Project1'] | Should -BeExactly @()
         $projectDependencies['Project2'] | Should -BeExactly @()
@@ -442,7 +442,7 @@ Describe "Get-ProjectsToBuild" {
         #       {
         #         "buildMode": "Default",
         #         "project": "Project1"
-        #       } 
+        #       }
         #    ]
         #  }
         #]
@@ -458,13 +458,13 @@ Describe "Get-ProjectsToBuild" {
         $buildOrder[0].buildDimensions[1].project | Should -BeExactly "Project2"
     }
 
-    It 'loads dependent projects correctly, if useProjectDependencies is set to false' {    
+    It 'loads dependent projects correctly, if useProjectDependencies is set to false' {
         # Two dependent projects
         $dependecyAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @() }
         New-Item -Path "$baseFolder/Project1/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project1/app/app.json" -Value (ConvertTo-Json $dependecyAppFile -Depth 10) -type File -Force
-        
-        $dependantAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd2'; name = 'Second App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @(@{id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0'} ) }
+
+        $dependantAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd2'; name = 'Second App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @(@{id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0' } ) }
         New-Item -Path "$baseFolder/Project2/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project2/app/app.json" -Value (ConvertTo-Json $dependantAppFile -Depth 10) -type File -Force
 
@@ -497,7 +497,7 @@ Describe "Get-ProjectsToBuild" {
         #       {
         #         "buildMode": "Default",
         #         "project": "Project2"
-        #       } 
+        #       }
         #    ]
         #  }
         #]
@@ -511,15 +511,15 @@ Describe "Get-ProjectsToBuild" {
         $buildOrder[0].buildDimensions[0].project | Should -BeExactly "Project1"
         $buildOrder[0].buildDimensions[1].buildMode | Should -BeExactly "Default"
         $buildOrder[0].buildDimensions[1].project | Should -BeExactly "Project2"
-    } 
+    }
 
     It 'loads dependent projects correctly, if useProjectDependencies is set to true' {
         # Two dependent projects
         $dependecyAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @() }
         New-Item -Path "$baseFolder/Project1/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project1/app/app.json" -Value (ConvertTo-Json $dependecyAppFile -Depth 10) -type File -Force
-        
-        $dependantAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd2'; name = 'Second App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @(@{id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0'} ) }
+
+        $dependantAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd2'; name = 'Second App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @(@{id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0' } ) }
         New-Item -Path "$baseFolder/Project2/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project2/app/app.json" -Value (ConvertTo-Json $dependantAppFile -Depth 10) -type File -Force
 
@@ -571,7 +571,7 @@ Describe "Get-ProjectsToBuild" {
         $buildOrder[0].buildDimensions.Count | Should -BeExactly 1
         $buildOrder[0].buildDimensions[0].buildMode | Should -BeExactly "Default"
         $buildOrder[0].buildDimensions[0].project | Should -BeExactly "Project1"
-        
+
         $buildOrder[1] | Should -BeOfType System.Collections.Hashtable
         $buildOrder[1].projects | Should -BeExactly @("Project2")
         $buildOrder[1].projectsCount | Should -BeExactly 1
@@ -585,8 +585,8 @@ Describe "Get-ProjectsToBuild" {
         $dependecyAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @() }
         New-Item -Path "$baseFolder/Project1/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project1/app/app.json" -Value (ConvertTo-Json $dependecyAppFile -Depth 10) -type File -Force
-        
-        $dependantAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd2'; name = 'Second App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @(@{id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0'} ) }
+
+        $dependantAppFile = @{ id = '83fb8305-4079-415d-a25d-8132f0436fd2'; name = 'Second App'; publisher = 'Contoso'; version = '1.0.0.0'; dependencies = @(@{id = '83fb8305-4079-415d-a25d-8132f0436fd1'; name = 'First App'; publisher = 'Contoso'; version = '1.0.0.0' } ) }
         New-Item -Path "$baseFolder/Project2/.AL-Go/settings.json" -type File -Force
         New-Item -Path "$baseFolder/Project2/app/app.json" -Value (ConvertTo-Json $dependantAppFile -Depth 10) -type File -Force
 

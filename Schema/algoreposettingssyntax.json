@@ -76,5 +76,8 @@
             "description": "Specifies the schedule for the next major test builds. Note that you need to run Update AL-Go System Files in order for this setting to take effect. See https://aka.ms/ALGoSettings#nextMajorSchedule"
         }
     },
-    "required": [ "type", "templateUrl" ]
+    "required": [
+        "type",
+        "templateUrl"
+    ]
 }

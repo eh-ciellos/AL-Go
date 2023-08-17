@@ -1,4 +1,4 @@
-name: ' Publish To AppSource'
+name: " Publish To AppSource"
 
 on:
   workflow_dispatch:
@@ -6,15 +6,15 @@ on:
       appVersion:
         description: App version to deliver to AppSource (current, prerelease, draft, latest or version number)
         required: false
-        default: 'current'
+        default: "current"
       projects:
         description: Projects to publish to AppSource if the repository is multi-project. Default is *, which will publish all projects to AppSource.
         required: false
-        default: '*'
+        default: "*"
       GoLive:
         description: Promote AppSource App to go live if it passes technical validation? (Y/N)
         required: false
-        default: 'N'
+        default: "N"
 
 permissions:
   contents: read
@@ -30,7 +30,7 @@ env:
 
 jobs:
   Initialization:
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
     outputs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
     steps:
@@ -45,8 +45,8 @@ jobs:
           eventId: "DO0103"
 
   Deliver:
-    needs: [ Initialization ]
-    runs-on: [ windows-latest ]
+    needs: [Initialization]
+    runs-on: [windows-latest]
     name: Deliver to AppSource
     steps:
       - name: Checkout
@@ -63,7 +63,7 @@ jobs:
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: 'appSourceContext'
+          getSecrets: "appSourceContext"
 
       - name: DeliveryContext
         id: deliveryContext
@@ -81,20 +81,20 @@ jobs:
       - name: Deliver
         uses: microsoft/AL-Go-Actions/Deliver@main
         env:
-          deliveryContext: '${{ steps.deliveryContext.outputs.deliveryContext }}'
+          deliveryContext: "${{ steps.deliveryContext.outputs.deliveryContext }}"
         with:
           shell: powershell
           parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
-          type: 'Release'
+          type: "Release"
           projects: ${{ github.event.inputs.projects }}
-          deliveryTarget: 'AppSource'
+          deliveryTarget: "AppSource"
           artifacts: ${{ github.event.inputs.appVersion }}
           goLive: ${{ github.event.inputs.goLive }}
 
   PostProcess:
     if: always()
-    runs-on: [ windows-latest ]
-    needs: [ Initialization, Deliver ]
+    runs-on: [windows-latest]
+    needs: [Initialization, Deliver]
     steps:
       - name: Checkout
         uses: actions/checkout@v3

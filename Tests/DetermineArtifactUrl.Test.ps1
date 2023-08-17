@@ -67,11 +67,11 @@ Describe "DetermineArtifactUrl" {
 
     BeforeEach {
         $projectSettings = @{
-            'artifact' = ''
-            'updateDependencies' = $false
-            'country' = 'us'
+            'artifact'              = ''
+            'updateDependencies'    = $false
+            'country'               = 'us'
             'applicationDependency' = '20.0.0.0'
-            'additionalCountries' = @()
+            'additionalCountries'   = @()
         }
     }
 

@@ -1,4 +1,4 @@
-name: ' Increment Version Number'
+name: " Increment Version Number"
 
 run-name: "Increment Version Number in [${{ github.ref_name }}]"
 
@@ -8,14 +8,14 @@ on:
       project:
         description: Project name if the repository is setup for multiple projects (* for all projects)
         required: false
-        default: '*'
+        default: "*"
       versionNumber:
         description: Updated Version Number. Use Major.Minor for absolute change, use +Major.Minor for incremental change.
         required: true
       directCommit:
         description: Direct COMMIT (Y/N)
         required: false
-        default: 'N'
+        default: "N"
       useGhTokenWorkflow:
         description: Use GhTokenWorkflow for Pull Request/COMMIT
         type: boolean
@@ -34,7 +34,7 @@ env:
 
 jobs:
   IncrementVersionNumber:
-    runs-on: [ windows-latest ]
+    runs-on: [windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,7 +60,7 @@ jobs:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: 'ghTokenWorkflow'
+          getSecrets: "ghTokenWorkflow"
 
       - name: CalculateToken
         id: CalculateToken
@@ -88,7 +88,7 @@ jobs:
           project: ${{ github.event.inputs.project }}
           versionNumber: ${{ github.event.inputs.versionNumber }}
           directCommit: ${{ github.event.inputs.directCommit }}
-  
+
       - name: Finalize the workflow
         if: always()
         uses: microsoft/AL-Go-Actions/WorkflowPostProcess@main
