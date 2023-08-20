@@ -10,7 +10,7 @@ if(!$env:GITHUB_EVENT_PATH) {
 
 $ghEvent = Get-Content $env:GITHUB_EVENT_PATH -Encoding UTF8 | ConvertFrom-Json
 
-if(-not ($ghEvent.PSObject.Properties.name -eq 'pull_request')) {
+if(-not ($ghEvent.PSObject.Properties.name -eq 'pull_request') -or ($ghEvent.PSObject.Properties.name -eq 'push')) {
     Write-Host "Not a pull request, returning empty list of changed files"
     return @()
 }
